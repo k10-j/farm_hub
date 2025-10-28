@@ -17,7 +17,7 @@ public class AgroVetDetails {
     @Id
     private UUID id; // This will be the same UUID as the User's ID
 
-    @Column(columnDefinition = "jsonb")
+    @Column(columnDefinition = "json")
     private String specialization;
 
     @Column(name = "license_number")
