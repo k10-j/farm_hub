@@ -25,7 +25,7 @@ public class DiagnosisReport {
 
     // For PostgreSQL's JSONB type, we map it to a String.
     // The 'columnDefinition' tells Hibernate how to create the column.
-    @Column(name = "pest_detected", columnDefinition = "jsonb")
+    @Column(name = "pest_detected", columnDefinition = "json")
     private String pestDetected;
 
     private Double confidence;
