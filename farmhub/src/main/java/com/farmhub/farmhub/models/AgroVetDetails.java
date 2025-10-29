@@ -15,7 +15,7 @@ import java.util.UUID;
 public class AgroVetDetails {
 
     @Id
-    private UUID id; // This will be the same UUID as the User's ID
+    private UUID id; 
 
     @Column(columnDefinition = "json")
     private String specialization;

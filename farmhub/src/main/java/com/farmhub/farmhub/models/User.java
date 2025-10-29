@@ -67,8 +67,8 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private AgroVetDetails agroVetDetails;
 
-    // --- Lifecycle Callback ---
-    @PrePersist // This method will be called automatically before the entity is saved
+    
+    @PrePersist 
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
     }
