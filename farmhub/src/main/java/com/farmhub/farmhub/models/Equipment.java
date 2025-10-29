@@ -6,8 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.util.ArrayList; // Import ArrayList
-import java.util.List;      // Import List
+import java.util.ArrayList;
+import java.util.List;      
 import java.util.UUID;
 
 @Getter
@@ -26,10 +26,10 @@ public class Equipment {
     @Column(nullable = false)
     private String type;
 
-    @Column(name = "hourly_rate", precision = 10, scale = 2) // Added snake_case for consistency
+    @Column(name = "hourly_rate", precision = 10, scale = 2) 
     private BigDecimal hourlyRate;
 
-    @Column(name = "daily_rate", precision = 10, scale = 2) // Added snake_case for consistency
+    @Column(name = "daily_rate", precision = 10, scale = 2) 
     private BigDecimal dailyRate;
 
     private String location;
@@ -43,7 +43,6 @@ public class Equipment {
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
 
-    // --- ADD THIS RELATIONSHIP ---
     // One piece of equipment can be in many bookings.
     @OneToMany(mappedBy = "equipment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Booking> bookings = new ArrayList<>(); // Initialize the list
