@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
-@Table(name = "orders") // "orders" is a reserved SQL keyword, so it's good practice to use @Table
+@Table(name = "orders")
 @Getter
 @Setter
 public class Order {
