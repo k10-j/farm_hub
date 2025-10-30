@@ -32,7 +32,6 @@ public class Order {
     @Column(name = "payment_status")
     private PaymentStatus paymentStatus;
     
-    // --- Relationships ---
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "produce_id", nullable = false)

@@ -95,3 +95,33 @@ curl -X POST https://farm-hub.onrender.com/api/auth/register -H "Content-Type: a
     ```json
     {"message":"Email Already Exists"}
     ```
+
+### User Login
+
+You can log in a user by sending a POST request to `/api/auth/login`.
+
+**Request Body:**
+```json
+{
+    "email":"testuser@example.com",
+    "password":"password12"
+}
+```
+
+**Responses:**
+
+*   **Success:** If the login is successful, you will receive the user's details and an `HttpOnly` cookie containing the JWT token.
+    ```json
+    {
+        "id": "65ea53b5-c5fa-4de0-ba45-e6c6dc5482b9",
+        "name": "Test User",
+        "email": "testuser@example.com",
+        "phone": "1234567890"
+    }
+    ```
+*   **Bad Credentials:** If the login fails due to incorrect credentials, you will receive the following response with a `401` status code:
+    ```json
+    {
+        "message": "Bad credentials"
+    }
+    ```
