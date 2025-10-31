@@ -1,12 +1,12 @@
 package com.farmhub.farmhub.dto;
 
+import java.util.List;
+import java.util.Map;
+
+
 import lombok.Data;
 
 @Data
 public class ErrorResponseDto {
-    String message;
-    public ErrorResponseDto(String msg){
-        this.message = msg;
-
-    }
+   List< Map<String, String>> message;
 }
