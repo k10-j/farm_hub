@@ -2,6 +2,18 @@
 
 The main objective of this project is to develop a backend System that combines pest and disease diagnosis, rent/buy equipment, and farmer marketplace functionalities, which further enhances farm productivity, reducing post-harvest losses, and improving market access for smallholder farmers.
 
+## Table of Contents
+
+*   [Features](#features)
+*   [Prerequisites](#prerequisites)
+*   [Technologies Used](#technologies-used)
+*   [Project Structure](#project-structure)
+*   [How to Run](#how-to-run)
+*   [API Endpoints](#api-endpoints)
+*   [Database Schema](#database-schema)
+*   [Contributing](#contributing)
+*   [License](#license)
+
 ## Features
 
 *   **User Authentication:** Secure user registration and login.
@@ -11,10 +23,17 @@ The main objective of this project is to develop a backend System that combines 
 *   **Order Management:** System for managing orders.
 *   **Booking Management:** System for managing equipment bookings.
 
+## Prerequisites
+
+Before you begin, ensure you have the following installed:
+*   **Java 21**
+*   **Maven**
+*   **MySQL**
+
 ## Technologies Used
 
 *   **Java 21**
-*   **Spring Boot 3.5.7**
+*   **Spring Boot 3.3.5**
 *   **Spring Web:** For building REST APIs.
 *   **Spring Data JPA:** For data persistence.
 *   **Spring Security:** For authentication and authorization.
@@ -22,6 +41,7 @@ The main objective of this project is to develop a backend System that combines 
 *   **Maven:** For dependency management.
 *   **Lombok:** To reduce boilerplate code.
 *   **dotenv-java:** For managing environment variables.
+*   **jjwt:** For creating and verifying JSON Web Tokens.
 
 ## Project Structure
 
@@ -58,6 +78,7 @@ The project follows a standard Spring Boot application structure:
     DB_URL=jdbc:mysql://localhost:3306/farmhub
     DB_USERNAME=your-db-username
     DB_PASSWORD=your-db-password
+    JWT_SECRET=your-jwt-secret
     ```
 3.  **Create the database:** Make sure you have a MySQL database named `farmhub`.
 4.  **Build the project:**
@@ -72,56 +93,113 @@ The application will be available at `http://localhost:8080`.
 
 ## API Endpoints
 
-### User Registration
+The API is documented using Swagger. Once the application is running, you can access the Swagger UI at `http://localhost:8080/swagger-ui.html`.
 
-You can register a new user by sending a POST request to `/api/auth/register`.
+### Authentication
 
-**Example using cURL:**
+#### Register
 
-```bash
-curl -X POST https://farm-hub.onrender.com/api/auth/register -H "Content-Type: application/json" -d '{
+*   `POST /api/auth/register`: Register a new user.
+
+**Request Body:**
+
+```json
+{
     "full_name": "Test User",
     "email": "testuser@example.com",
     "password": "password123",
     "phone_number": "1234567890",
     "location": "Nairobi"
-}'
-```
-
-**Responses:**
-
-*   **Success:** If the registration is successful, you will receive a success message.
-*   **Email Already Exists:** If the email is already registered, you will receive the following response:
-    ```json
-    {"message":"Email Already Exists"}
-    ```
-
-### User Login
-
-You can log in a user by sending a POST request to `/api/auth/login`.
-
-**Request Body:**
-```json
-{
-    "email":"testuser@example.com",
-    "password":"password12"
 }
 ```
 
-**Responses:**
+**Success Response (201 Created):**
 
-*   **Success:** If the login is successful, you will receive the user's details and an `HttpOnly` cookie containing the JWT token.
-    ```json
-    {
-        "id": "65ea53b5-c5fa-4de0-ba45-e6c6dc5482b9",
-        "name": "Test User",
-        "email": "testuser@example.com",
-        "phone": "1234567890"
-    }
-    ```
-*   **Bad Credentials:** If the login fails due to incorrect credentials, you will receive the following response with a `401` status code:
-    ```json
-    {
-        "message": "Bad credentials"
-    }
-    ```
+```json
+{
+    "id": "3e476a91-0fdf-40b3-becf-7683a5aaa54d",
+    "name": "Test User",
+    "email": "testuser5@example.com",
+    "phone": "1234567890"
+}
+```
+
+**Error Responses:**
+
+*   **400 Bad Request (Missing Fields):**
+
+```json
+{
+    "message": [
+        {
+            "password": "Password is required.",
+            "phone_number": "Phone number is required."
+        }
+    ]
+}
+```
+
+*   **409 Conflict (Email already exists):**
+
+```json
+{
+    "message": [
+        {
+            "message": "An account with this email already exists."
+        }
+    ]
+}
+```
+
+#### Login
+
+*   `POST /api/auth/login`: Login a user and get a JWT token.
+
+**Request Body:**
+
+```json
+{
+    "email": "testuser@example.com",
+    "password": "password13"
+}
+```
+
+**Success Response (200 OK):**
+
+*   **Body:**
+
+```json
+{
+    "id": "65ea53b5-c5fa-4de0-ba45-e6c6dc5482b9",
+    "name": "Test User",
+    "email": "testuser@example.com",
+    "phone": "1234567890"
+}
+```
+
+*   **Cookie:**
+    *   `jwt`: HTTP-only cookie containing the JWT token.
+
+**Error Response (401 Unauthorized):**
+
+```json
+{
+    "message": [
+        {
+            "message": "Invalid email or password."
+        }
+    ]
+}
+```
+
+## Database Schema
+
+The database schema is automatically generated by Hibernate based on the JPA entities in the `com.farmhub.farmhub.models` package.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a pull request.
+
+## License
+
+This project is licensed under the MIT License.
