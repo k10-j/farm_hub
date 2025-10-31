@@ -43,7 +43,6 @@ public class Equipment {
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
 
-    // One piece of equipment can be in many bookings.
     @OneToMany(mappedBy = "equipment", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Booking> bookings = new ArrayList<>(); // Initialize the list
+    private List<Booking> bookings = new ArrayList<>(); 
 }

@@ -15,7 +15,7 @@ public class DiagnosisReport {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id; // Maps to 'report_id'
+    private UUID id; 
 
     @Column(name = "image_url", columnDefinition = "TEXT")
     private String imageUrl;
@@ -23,7 +23,6 @@ public class DiagnosisReport {
     @Column(name = "crop_type")
     private String cropType;
 
-    // The 'columnDefinition' tells Hibernate how to create the column.
     @Column(name = "pest_detected", columnDefinition = "json")
     private String pestDetected;
 

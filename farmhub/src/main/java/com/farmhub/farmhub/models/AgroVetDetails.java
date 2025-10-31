@@ -32,10 +32,9 @@ public class AgroVetDetails {
     @Column(name = "response_time")
     private Integer responseTime;
 
-    // --- Relationship ---
 
     @OneToOne(fetch = FetchType.LAZY)
-    @MapsId // This is the key: it maps this entity's ID to the User's ID
-    @JoinColumn(name = "id") // Join on the ID column
+    @MapsId
+    @JoinColumn(name = "id")
     private User user;
 }
