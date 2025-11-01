@@ -20,18 +20,27 @@ public class Produce {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id; // Maps to 'produce_id'
+    private UUID id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "produce_name")
     private String name;
 
     @Column(name = "crop_type")
     private String cropType;
+    
+    @Column(columnDefinition = "TEXT")
+    private String description;
 
     private String unit;
 
+    @Column(nullable = false)
+    private Double quantity;
+
     @Column(name = "price_per_unit", precision = 10, scale = 2)
     private BigDecimal pricePerUnit;
+
+    @Column(name = "image_url")
+    private String imageUrl;
 
     @Column(name = "harvest_date")
     private LocalDate harvestDate;
@@ -39,11 +48,12 @@ public class Produce {
     @Enumerated(EnumType.STRING)
     private AvailabilityStatus availability;
 
-    // --- Relationships ---
+    
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "farmer_id", nullable = false)
     private User farmer;
+    
     @OneToMany(mappedBy = "produce", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PriceHistory> priceHistory = new ArrayList<>();
     
