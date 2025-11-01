@@ -24,7 +24,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
-    public static final String JWT_COOKIE_NAME = "access_token";
+    public static final String JWT_COOKIE_NAME = "jwt";
 
     @Override
     protected void doFilterInternal(
