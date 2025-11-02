@@ -72,15 +72,15 @@ public class ProduceControllers {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteProduce(@PathVariable UUID id) {
+    public ResponseEntity<?> deleteProduce(@PathVariable UUID id,@AuthenticationPrincipal User currentUser) {
         try {
-            produceService.deleteProduce(id);
+            produceService.deleteProduce(id,currentUser);
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
             Map<String,String> erro = new HashMap<>();
 
             erro.put("message", e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
                 erro
             );
 
