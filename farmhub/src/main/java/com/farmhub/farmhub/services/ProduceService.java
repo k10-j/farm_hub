@@ -4,6 +4,7 @@ import com.farmhub.farmhub.dto.CreateProduceDto;
 import com.farmhub.farmhub.dto.ProduceResponseDto;
 import com.farmhub.farmhub.dto.UserResponseDto;
 import com.farmhub.farmhub.enums.AvailabilityStatus;
+import com.farmhub.farmhub.enums.Role;
 import com.farmhub.farmhub.models.Produce;
 import com.farmhub.farmhub.models.User;
 import com.farmhub.farmhub.repositories.ProduceRepository;
@@ -20,7 +21,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ProduceService {
-    
+
     private final ProduceRepository produceRepository;
 
     @Transactional
@@ -34,7 +35,7 @@ public class ProduceService {
     public ProduceResponseDto getProduceById(UUID id) {
         if (id == null) {
             throw new EntityNotFoundException("Id here is null  but i dont now");
-            
+
         }
         return produceRepository.findById(id)
                 .map(this::convertToProduceResponseDto)
@@ -66,11 +67,16 @@ public class ProduceService {
     }
 
     @Transactional
-    public void deleteProduce(UUID id) {
-        if (!produceRepository.existsById(id)) {
-            throw new EntityNotFoundException("Produce not found with ID: " + id);
+    public void deleteProduce(UUID produceId, User currentUser) {
+        Produce produce = produceRepository.findById(produceId)
+                .orElseThrow(() -> new EntityNotFoundException("Produce not found"));
+
+        // Security Check: User can only delete if they are the owner OR an admin
+        if (!produce.getFarmer().getId().equals(currentUser.getId()) && !currentUser.getRole().equals(Role.ADMIN)) {
+            throw new IllegalStateException("You are not authorized to delete this item."); 
         }
-        produceRepository.deleteById(id);
+
+        produceRepository.deleteById(produceId);
     }
 
     private ProduceResponseDto convertToProduceResponseDto(Produce produce) {
@@ -85,7 +91,7 @@ public class ProduceService {
         dto.setImageUrl(produce.getImageUrl());
         dto.setHarvestDate(produce.getHarvestDate());
         dto.setAvailability(produce.getAvailability());
-        
+
         UserResponseDto farmerDto = new UserResponseDto();
         farmerDto.setId(produce.getFarmer().getId());
         farmerDto.setName(produce.getFarmer().getName());
@@ -98,10 +104,10 @@ public class ProduceService {
 
     private Produce convertToProduceEntity(CreateProduceDto dto, User farmer) {
         Produce produce = new Produce();
-        
-        AvailabilityStatus availability = (dto.getQuantity() != null && dto.getQuantity() > 0) 
-            ? AvailabilityStatus.AVAILABLE 
-            : AvailabilityStatus.UNAVAILABLE;
+
+        AvailabilityStatus availability = (dto.getQuantity() != null && dto.getQuantity() > 0)
+                ? AvailabilityStatus.AVAILABLE
+                : AvailabilityStatus.UNAVAILABLE;
 
         produce.setName(dto.getName());
         produce.setCropType(dto.getCropType());
