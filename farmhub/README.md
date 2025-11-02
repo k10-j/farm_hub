@@ -266,7 +266,7 @@ The API is documented using Swagger. Once the application is running, you can ac
 
 **Success Response (200 OK):**
 
-#### Update Produce
+#### Update Produceb
 
 *   `PATCH /api/produce/{id}`: Partially update a produce listing.
 
