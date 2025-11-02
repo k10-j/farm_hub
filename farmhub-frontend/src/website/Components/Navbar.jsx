@@ -23,6 +23,7 @@ const Navbar = () => {
             { name: "Pest Diagnosis", to: "/pest-diagnosis" },
             { name: "Equipment", to: "/equipment" },
             { name: "Marketplace", to: "/marketplace" },
+            { name: "About", to: "/About" },
           ].map((link) => (
             <li key={link.name}>
               <NavLink
@@ -73,6 +74,7 @@ const Navbar = () => {
               { name: "Pest Diagnosis", to: "/pest-diagnosis" },
               { name: "Equipment", to: "/equipment" },
               { name: "Marketplace", to: "/marketplace" },
+            { name: "About", to: "/About" },
               { name: "Sign In", to: "/signin" },
             ].map((link) => (
               <li key={link.name}>
