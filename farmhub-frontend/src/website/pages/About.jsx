@@ -5,6 +5,8 @@ import "aos/dist/aos.css";
 import { useEffect } from "react";
 import Diane from "../../assets/images/Dianne.png"
 import Emma from "../../assets/images/Emma.jpg"
+import Iriza from "../../assets/images/iriza.jpg"
+import Innocent from "../../assets/images/Innocent.jpg"
 
 
 const About = () => {
@@ -59,7 +61,7 @@ const Team = [
          {
           name: "Iriza",
           role: "Project Founder",
-          image: "https://via.placeholder.com/150",
+          image: Iriza,
           bio: "Visionary behind FarmHub, driving innovation and empowering farmers through technology.",
         },
 
@@ -78,23 +80,24 @@ const Team = [
         },
 
          {
-          name: "Innocent",
-          role: "Backend Developer",
-          image: "https://via.placeholder.com/150",
-          bio: "Building the robust backend systems that power FarmHub’s marketplace and diagnostics.",
-        },
-
-        {
           name: "Diane Ingabire",
           role: "Frontend Developer",
           image: Diane,
           bio: "Designing and implementing the FarmHub interface for a smooth user experience.",
         },
-       
+
+         {
+          name: "Innocent",
+          role: "Backend Developer",
+          image: Innocent,
+          bio: "Building the robust backend systems that power FarmHub’s marketplace and diagnostics.",
+        },
+
+
       ];
 
   return (
-    <div className="flex flex-col min-h-screen font-serif">
+    <div className="flex  pt-20 flex-col min-h-screen font-serif">
         
         <main className=" flex-grow">
 {/* Hero Section on the about page */}
