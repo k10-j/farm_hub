@@ -35,17 +35,16 @@ public class Booking {
     @Enumerated(EnumType.STRING)
     private PaymentStatus paymentStatus;
 
-    // --- Relationships ---
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "equipment_id", nullable = false)
     private Equipment equipment;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "farmer_id", nullable = false) // User who made the booking
+    @JoinColumn(name = "farmer_id", nullable = false) 
     private User farmer;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner_id", nullable = false) // User who owns the equipment
+    @JoinColumn(name = "owner_id", nullable = false) 
     private User owner;
 }
