@@ -2,6 +2,7 @@ package com.farmhub.farmhub.services;
 
 import org.springframework.stereotype.Service;
 import com.farmhub.farmhub.dto.*;
+import com.farmhub.farmhub.enums.AvailabilityStatus;
 import com.farmhub.farmhub.enums.OrderStatus;
 import com.farmhub.farmhub.enums.PaymentStatus;
 import com.farmhub.farmhub.models.Order;
@@ -99,6 +100,57 @@ public class OrderService {
         return convertToResponseDto(savedOrder);
     }
 
+
+    public MakeOrderResponseDto getOrderById(UUID orderId, User currentUser) {
+        Order order = orderRepository.findByIdWithDetails(orderId)
+                .orElseThrow(() -> new EntityNotFoundException("Order not found with ID: " + orderId));
+
+        if (!order.getBuyer().getId().equals(currentUser.getId()) && 
+            !order.getFarmer().getId().equals(currentUser.getId())) {
+            throw new EntityNotFoundException("Order not found with ID: " + orderId);
+        }
+
+        return convertToResponseDto(order);
+    }
+
+    public List<MakeOrderResponseDto> getOrdersForUser(User currentUser) {
+
+        List<Order> orders = orderRepository.findAllByBuyerOrFarmerWithDetails(currentUser);
+        
+        return orders.stream()
+                .map(this::convertToResponseDto)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public MakeOrderResponseDto updateOrderStatus(UUID orderId, UpdateOrderStatusDto statusDto, User farmer) {
+        Order order = orderRepository.findByIdAndFarmer(orderId, farmer)
+                .orElseThrow(() -> new EntityNotFoundException("Order not found or you are not the farmer."));
+        
+        order.setStatus(statusDto.getStatus());
+        Order savedOrder = orderRepository.save(order);
+
+        return convertToResponseDto(savedOrder);
+    }
+
+    @Transactional
+    public void cancelOrder(UUID orderId, User buyer) {
+        Order order = orderRepository.findByIdAndBuyer(orderId, buyer)
+                .orElseThrow(() -> new EntityNotFoundException("Order not found or you are not the buyer."));
+
+        if (order.getStatus() != OrderStatus.PENDING) {
+            throw new IllegalArgumentException("Cannot cancel an order that is already " + order.getStatus());
+        }
+
+        for (OrderItem item : order.getOrderItems()) {
+            Produce produce = item.getProduce();
+            double newQuantity = produce.getQuantity() + item.getQuantity();
+            produce.setQuantity(newQuantity);
+            produce.setAvailability(AvailabilityStatus.AVAILABLE);
+            produceRepository.save(produce);
+        }
+        orderRepository.delete(order);
+    }
    private MakeOrderResponseDto convertToResponseDto(Order order) {
         MakeOrderResponseDto dto = new MakeOrderResponseDto(); 
         
