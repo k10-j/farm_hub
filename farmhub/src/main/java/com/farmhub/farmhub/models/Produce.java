@@ -48,8 +48,6 @@ public class Produce {
     @Enumerated(EnumType.STRING)
     private AvailabilityStatus availability;
 
-    
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "farmer_id", nullable = false)
     private User farmer;
@@ -58,5 +56,5 @@ public class Produce {
     private List<PriceHistory> priceHistory = new ArrayList<>();
     
     @OneToMany(mappedBy = "produce", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Order> orders = new ArrayList<>();
+    private List<OrderItem> orderItems = new ArrayList<>();
 }
