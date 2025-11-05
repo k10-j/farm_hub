@@ -30,6 +30,7 @@ public class Booking {
     private BigDecimal totalPrice;
 
     @Enumerated(EnumType.STRING)
+    @Column(length = 50)
     private BookingStatus status;
 
     @Enumerated(EnumType.STRING)
