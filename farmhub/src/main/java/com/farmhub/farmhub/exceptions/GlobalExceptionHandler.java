@@ -97,6 +97,6 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ErrorResponseDto handleAuthentication(AuthenticationException ex) {
         // Note: We don't return ex.getMessage() for security.
-        return new ErrorResponseDto("Unauthorized", "Invalid email or password.");
+        return new ErrorResponseDto("Unauthorized", "Invalid email or password. "+ex.getMessage());
     }
 }
