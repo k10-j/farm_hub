@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion } from "framer-motion"; // eslint-disable-line
 import { BugIcon, TractorIcon, ShoppingBagIcon, ArrowRightIcon, CheckCircleIcon, StarIcon } from "lucide-react";
 
 export function Home() {
@@ -65,7 +65,7 @@ export function Home() {
   }];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white w-full font-serif">
+    <div className="min-h-screen bg-gradient-to-b from-green-50 pt-40 to-white w-full font-serif">
 
       {/* Hero Section */}
       <section className="relative h-[80vh] flex items-center justify-center text-center overflow-hidden">
