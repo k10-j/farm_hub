@@ -29,7 +29,7 @@ const ProductCard = ({ product, animation }) => {
             </span>
           )}
           {product.isNew && (
-            <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded font-bold">
+            <span className="bg-yellow-500 text-white text-xs px-2 py-1 rounded font-bold">
               NEW
             </span>
           )}

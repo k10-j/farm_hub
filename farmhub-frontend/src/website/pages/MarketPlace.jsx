@@ -68,7 +68,7 @@ const Marketplace = () => {
         </div>
 
         {/* Products grid */}
-        <main className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <main className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 mb-8 gap-5">
           {filteredProducts.length === 0 ? (
             <p className="col-span-full text-center text-gray-500 mt-10">
               No products match your filters.
