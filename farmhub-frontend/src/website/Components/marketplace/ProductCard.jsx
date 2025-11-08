@@ -1,12 +1,13 @@
-// components/ProductCard.jsx
 import React from "react";
 import { Link } from "react-router-dom";
+import { useCart } from "../../hooks/cartHook";
 
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
 import { ShoppingCart, Heart, Star, User, MapPin, TrendingUp } from "lucide-react";
 
 const ProductCard = ({ product, animation }) => {
+  const { addToCart } = useCart(); 
   return (
     <motion.div
       className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 group"
@@ -28,7 +29,7 @@ const ProductCard = ({ product, animation }) => {
             </span>
           )}
           {product.isNew && (
-            <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded font-bold">
+            <span className="bg-yellow-500 text-white text-xs px-2 py-1 rounded font-bold">
               NEW
             </span>
           )}
@@ -107,17 +108,18 @@ const ProductCard = ({ product, animation }) => {
         </div>
 
         <div className="flex gap-2">
-          <button
-            disabled={!product.inStock}
-            className={`flex-1 py-2.5 rounded-lg font-medium transition-all text-sm ${
-              product.inStock
-                ? "bg-green-600 text-white hover:bg-green-700 active:scale-95"
-                : "bg-gray-200 text-gray-400 cursor-not-allowed"
-            }`}
-          >
-            <ShoppingCart className="w-4 h-4 inline mr-1" />
-            Add to Cart
-          </button>
+      <button
+        disabled={!product.inStock}
+        onClick={() => addToCart(product)}
+        className={`flex-1 py-2.5 rounded-lg font-medium transition-all text-sm mt-3 ${
+          product.inStock
+            ? "bg-green-600 text-white hover:bg-green-700 active:scale-95"
+            : "bg-gray-200 text-gray-400 cursor-not-allowed"
+        }`}
+      >
+        <ShoppingCart className="w-4 h-4 inline mr-1" />
+        Add to Cart
+      </button>
         </div>
       </div>
     </motion.div>

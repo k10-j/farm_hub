@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
+import { useCart } from "../hooks/cartHook"; 
 import { Leaf, ShoppingCart, Menu, X, Search, User, MapPin, ChevronDown } from "lucide-react";
 
 const Navbar = () => {
+  const { totalItems } = useCart(); 
   const [isOpen, setIsOpen] = useState(false);
   const [lang, setLang] = useState("EN");
   const [searchFocused, setSearchFocused] = useState(false);
@@ -107,11 +109,11 @@ const Navbar = () => {
               <div className="relative cursor-pointer group">
                 <div className="bg-gray-100 p-2.5 rounded-full group-hover:bg-green-50 transition">
                   <ShoppingCart className="w-6 h-6 text-gray-700 group-hover:text-green-700 transition" />
-                  {cartItems > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-xs w-5 h-5 flex items-center justify-center font-bold shadow-md">
-                      {cartItems}
-                    </span>
-                  )}
+          {totalItems > 0 && (
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-xs w-5 h-5 flex items-center justify-center font-bold shadow-md">
+              {totalItems}
+            </span>
+          )}
                 </div>
               </div>
 
