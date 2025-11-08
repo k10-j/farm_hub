@@ -1,4 +1,3 @@
-// pages/ProductPage.jsx
 import React, { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import products from "../../Components/marketplace/ProductData";
@@ -65,7 +64,7 @@ const ProductPage = () => {
     .slice(0, 4);
 
   return (
-    <div className="min-h-screen mt-40 bg-gray-100 p-6 md:p-12">
+    <div className="min-h-screen mt-40 bg-gray-100 font-serif p-6 md:p-12">
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8">
         {/* Left: Image Gallery */}
         <div className="lg:w-1/2 flex flex-col gap-4">
@@ -225,7 +224,7 @@ const ProductPage = () => {
       {/* Related Products */}
       {relatedProducts.length > 0 && (
         <div className="max-w-7xl mx-auto mt-12">
-          <h2 className="text-2xl font-bold mb-6">Related Products</h2>
+          <h2 className="text-2xl font-bold mb-6">You may also Like these Products</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
             {relatedProducts.map((p) => (
               <Link

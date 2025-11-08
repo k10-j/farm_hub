@@ -1,4 +1,5 @@
 import React from "react";
+// eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
 import { Activity, Handshake, Trees, Leaf } from "lucide-react";
 import { animations, pulseAnimation, bubbleAnimation } from "../utils/motionConfig";
