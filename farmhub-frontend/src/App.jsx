@@ -12,15 +12,16 @@ import CartProvider from './website/context/CartProvider';
 function App() {
   return (
     <BrowserRouter>
-     <CartProvider>
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/equipment" element={<Equipment />} />
-        <Route path="/About" element={<About />} />
-        <Route path="/marketplace" element={<Marketplace/>}/>
-        <Route path="/product/:id" element={<ProductPage />} />
-      </Routes>
+      <CartProvider>
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/equipement" element={<Equipment />} />
+          <Route path="/About" element={<About />} />
+          <Route path="/marketplace" element={<Marketplace />} />
+          <Route path="/pest-diagnosis" element={<PestDiagnosis />} />
+          <Route path="/product/:id" element={<ProductPage />} />
+        </Routes>
       </CartProvider>
       <Footer />
     </BrowserRouter>

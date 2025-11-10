@@ -21,7 +21,7 @@ const Navbar = () => {
 
 
   return (
-    <nav className="w-full fixed top-0 left-0 z-50 font-serif">
+    <nav className="w-full fixed top-0 left-0 z-50 font-sanserif">
       {/* Top Bar - Slim promotional/info bar */}
       <div className="bg-gradient-to-r from-green-800 to-green-900 text-white text-xs">
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-2 flex justify-between items-center">

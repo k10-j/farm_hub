@@ -4,7 +4,7 @@ import { Leaf, Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin, Yout
 
 export default function Footer() {
   return (
-    <footer className="bg-gradient-to-b from-gray-900 to-gray-950 text-gray-300 font-serif">
+    <footer className="bg-gradient-to-b from-gray-900 to-gray-950 text-gray-300 font-sanserif">
       {/* Main Footer Content */}
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-12">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10 pb-10 border-b border-gray-800">
