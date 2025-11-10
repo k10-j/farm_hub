@@ -15,9 +15,10 @@ function App() {
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/equipment" element={<Equipment />} />
+        <Route path="/equipement" element={<Equipment />} />
         <Route path="/About" element={<About />} />
         <Route path="/marketplace" element={<Marketplace/>}/>
+        <Route path="/equipement" element={<Equipment/>}/>
         <Route path="/product/:id" element={<ProductPage />} />
       </Routes>
       </CartProvider>
