@@ -13,7 +13,7 @@ const Navbar = () => {
   const navLinks = [
     { name: "Home", to: "/" },
     { name: "Pest Diagnosis", to: "/pest-diagnosis" },
-    { name: "Equipment", to: "/eqentuipm" },
+    { name: "Equipment", to: "/equipement" },
     { name: "Marketplace", to: "/marketplace" },
     { name: "About Us", to: "/About" },
   ];
