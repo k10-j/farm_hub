@@ -34,7 +34,7 @@ const Marketplace = () => {
   };
 
   return (
-    <div className="min-h-screen font-serif bg-gray-50 pt-50 ">
+    <div className="min-h-screen font-sanserif bg-gray-50 pt-50 ">
       {/* Mobile sidebar toggle */}
       <div className="lg:hidden flex justify-end px-6 mb-4">
         <button

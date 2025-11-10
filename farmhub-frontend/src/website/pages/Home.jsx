@@ -65,7 +65,7 @@ export function Home() {
   }];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-50 pt-40 to-white w-full font-serif">
+    <div className="min-h-screen bg-gradient-to-b from-green-50 pt-40 to-white w-full font-sanserif">
 
       {/* Hero Section */}
       <section className="relative h-[80vh] flex items-center justify-center text-center overflow-hidden">

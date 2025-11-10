@@ -18,7 +18,7 @@ export function PestDiagnosis() {
             reader.readAsDataURL(file);
         }
     };
-    return <div className="min-h-screen bg-gradient-to-b from-green-50 pt-40 to-white w-full font-serif">
+    return <div className="min-h-screen bg-gradient-to-b from-green-50 pt-40 to-white w-full font-sanserif">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             {/* Header */}
             <motion.div initial={{

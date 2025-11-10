@@ -83,7 +83,7 @@ const About = () => {
   ];
 
   return (
-    <div className="flex pt-20 flex-col min-h-screen font-serif">
+    <div className="flex pt-20 flex-col min-h-screen font-sanserif">
       <main className="flex-grow">
         {/* Hero Section */}
         <motion.section 
