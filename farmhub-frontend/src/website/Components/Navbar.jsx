@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
-import { useCart } from "../hooks/cartHook"; 
+import { Link } from 'react-router-dom';
+import { useCart } from "../hooks/cartHook";
 import { Leaf, ShoppingCart, Menu, X, Search, User, MapPin, ChevronDown } from "lucide-react";
 
 const Navbar = () => {
-  const { totalItems } = useCart(); 
+  const { totalItems } = useCart();
   const [isOpen, setIsOpen] = useState(false);
   const [lang, setLang] = useState("EN");
   const [searchFocused, setSearchFocused] = useState(false);
@@ -50,10 +51,23 @@ const Navbar = () => {
             </select>
             <span className="hidden sm:inline">|</span>
             <div className="hidden sm:flex items-center space-x-3">
-              <a href="/signin" className="hover:text-green-300 transition">Sign In</a>
+              <Link
+                to="/signinup"
+                state={{ mode: 'signin' }}
+                className="hover:text-green-300 transition"
+              >
+                Sign In
+              </Link>
               <span>|</span>
-              <a href="/register" className="hover:text-green-300 transition">Register</a>
+              <Link
+                to="/signinup"
+                state={{ mode: 'signup' }}
+                className="hover:text-green-300 transition"
+              >
+                Register
+              </Link>
             </div>
+
           </div>
         </div>
       </div>
@@ -109,16 +123,16 @@ const Navbar = () => {
               <div className="relative cursor-pointer group">
                 <div className="bg-gray-100 p-2.5 rounded-full group-hover:bg-green-50 transition">
                   <ShoppingCart className="w-6 h-6 text-gray-700 group-hover:text-green-700 transition" />
-          {totalItems > 0 && (
-            <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-xs w-5 h-5 flex items-center justify-center font-bold shadow-md">
-              {totalItems}
-            </span>
-          )}
+                  {totalItems > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-xs w-5 h-5 flex items-center justify-center font-bold shadow-md">
+                      {totalItems}
+                    </span>
+                  )}
                 </div>
               </div>
 
               {/* Mobile Menu Button */}
-              <button 
+              <button
                 onClick={() => setIsOpen(!isOpen)}
                 className="md:hidden p-2 hover:bg-gray-100 rounded-lg transition"
               >
@@ -143,24 +157,23 @@ const Navbar = () => {
         {/* Navigation Links - Below main bar */}
         <div className="hidden md:block border-t border-gray-100 bg-gray-50">
           <div className="max-w-7xl mx-auto px-4 md:px-6">
-<ul className="flex justify-center items-center space-x-8 text-gray-700 font-medium py-3">
-  {navLinks.map((link) => (
-    <li key={link.name}>
-      <NavLink
-        to={link.to}
-        className={({ isActive }) =>
-          `transition-colors text-sm pb-3 border-b-2 ${
-            isActive
-              ? "text-green-700 font-semibold border-green-700"
-              : "hover:text-green-700 border-transparent"
-          }`
-        }
-      >
-        {link.name}
-      </NavLink>
-    </li>
-  ))}
-</ul>
+            <ul className="flex justify-center items-center space-x-8 text-gray-700 font-medium py-3">
+              {navLinks.map((link) => (
+                <li key={link.name}>
+                  <NavLink
+                    to={link.to}
+                    className={({ isActive }) =>
+                      `transition-colors text-sm pb-3 border-b-2 ${isActive
+                        ? "text-green-700 font-semibold border-green-700"
+                        : "hover:text-green-700 border-transparent"
+                      }`
+                    }
+                  >
+                    {link.name}
+                  </NavLink>
+                </li>
+              ))}
+            </ul>
 
           </div>
         </div>
@@ -168,9 +181,8 @@ const Navbar = () => {
 
       {/* Mobile Menu Drawer */}
       <div
-        className={`md:hidden fixed top-0 right-0 h-full w-80 bg-white shadow-2xl transform ${
-          isOpen ? "translate-x-0" : "translate-x-full"
-        } transition-transform duration-300 ease-in-out z-50`}
+        className={`md:hidden fixed top-0 right-0 h-full w-80 bg-white shadow-2xl transform ${isOpen ? "translate-x-0" : "translate-x-full"
+          } transition-transform duration-300 ease-in-out z-50`}
       >
         <div className="px-6 py-5 flex justify-between items-center border-b bg-gradient-to-r from-green-50 to-white">
           <div className="flex items-center space-x-2">
@@ -201,25 +213,24 @@ const Navbar = () => {
           </div>
         </div>
 
-<ul className="flex flex-col mt-2 px-4 text-gray-700">
-  {navLinks.map((link) => (
-    <li key={link.name}>
-      <NavLink
-        to={link.to}
-        onClick={() => setIsOpen(false)}
-        className={({ isActive }) =>
-          `block px-4 py-3 rounded-lg my-1 font-medium transition-colors ${
-            isActive
-              ? "bg-green-50 text-green-700"
-              : "hover:bg-gray-50"
-          }`
-        }
-      >
-        {link.name}
-      </NavLink>
-    </li>
-  ))}
-</ul>
+        <ul className="flex flex-col mt-2 px-4 text-gray-700">
+          {navLinks.map((link) => (
+            <li key={link.name}>
+              <NavLink
+                to={link.to}
+                onClick={() => setIsOpen(false)}
+                className={({ isActive }) =>
+                  `block px-4 py-3 rounded-lg my-1 font-medium transition-colors ${isActive
+                    ? "bg-green-50 text-green-700"
+                    : "hover:bg-gray-50"
+                  }`
+                }
+              >
+                {link.name}
+              </NavLink>
+            </li>
+          ))}
+        </ul>
 
 
         {/* Cart in mobile */}
@@ -233,8 +244,8 @@ const Navbar = () => {
 
       {/* Mobile overlay */}
       {isOpen && (
-        <div 
-          className="fixed inset-0 bg-black/40 z-40 backdrop-blur-sm md:hidden" 
+        <div
+          className="fixed inset-0 bg-black/40 z-40 backdrop-blur-sm md:hidden"
           onClick={() => setIsOpen(false)}
         ></div>
       )}

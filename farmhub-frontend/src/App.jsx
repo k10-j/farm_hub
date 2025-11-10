@@ -6,6 +6,7 @@ import Footer from "./website/Components/Footer";
 import About from "./website/pages/About";
 import PestDiagnosis from "./website/pages/PestDiagnosis";
 import Marketplace from "./website/pages/MarketPlace";
+import SignInUp from "./website/pages/signinup";
 import ProductPage from "./website/pages/product/[id]";
 import CartProvider from './website/context/CartProvider';
 
@@ -21,6 +22,7 @@ function App() {
           <Route path="/marketplace" element={<Marketplace />} />
           <Route path="/pest-diagnosis" element={<PestDiagnosis />} />
           <Route path="/product/:id" element={<ProductPage />} />
+          <Route path="/signinup" element={<SignInUp />} />
         </Routes>
       </CartProvider>
       <Footer />
