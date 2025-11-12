@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.http.HttpHeaders;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -32,18 +32,26 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<UserResponseDto> login(@RequestBody LoginRequest payload, HttpServletResponse response) {
+public ResponseEntity<UserResponseDto> login(@RequestBody LoginRequest payload, HttpServletResponse response) {
 
-        AuthenticationResponse authResponse = authenticationService.login(payload);
+    AuthenticationResponse authResponse = authenticationService.login(payload);
 
-        Cookie jwtCookie = new Cookie("jwt", authResponse.getToken());
-        jwtCookie.setHttpOnly(true);
-        jwtCookie.setSecure(true);
-        jwtCookie.setPath("/");
-        jwtCookie.setMaxAge(3600);
-        response.addCookie(jwtCookie);
-        return ResponseEntity.ok(authResponse.getUser());
-    }
+    // --- START OF FIX ---
+    // We build the cookie as a String to include SameSite=None,
+    // which is required for cross-domain requests.
+
+    String cookieString = String.format(
+            "jwt=%s; HttpOnly; Secure; Path=/; Max-Age=3600; SameSite=None", 
+            authResponse.getToken()
+    );
+
+    // Add the cookie string directly to the response headers
+    response.addHeader(HttpHeaders.SET_COOKIE, cookieString);
+    
+    // --- END OF FIX ---
+
+    return ResponseEntity.ok(authResponse.getUser());
+}
 
     @PostMapping("/logout")
     public ResponseEntity<Map<String, String>> logout(HttpServletResponse response) {
