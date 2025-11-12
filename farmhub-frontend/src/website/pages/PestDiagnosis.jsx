@@ -34,6 +34,7 @@ export function PestDiagnosis() {
         const res = await fetch('https://farm-hub.onrender.com/api/detect-disease', {
           method: 'POST',
           body: formData,
+          credentials: 'include',
         });
 
         if (!res.ok) {
