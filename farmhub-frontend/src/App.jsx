@@ -6,7 +6,7 @@ import Footer from "./website/Components/Footer";
 import About from "./website/pages/About";
 import PestDiagnosis from "./website/pages/PestDiagnosis";
 import Marketplace from "./website/pages/MarketPlace";
-import SignInUp from "./website/pages/signinup";
+import SignInUp from "./website/pages/SignInUp";
 import ProductPage from "./website/pages/product/[id]";
 import CartProvider from './website/context/CartProvider';
 
