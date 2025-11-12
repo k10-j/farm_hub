@@ -8,8 +8,13 @@ The main objective of this project is to develop a backend System that combines 
 *   [Prerequisites](#prerequisites)
 *   [Technologies Used](#technologies-used)
 *   [Project Structure](#project-structure)
+*   [Environment Variables](#environment-variables)
 *   [How to Run](#how-to-run)
+*   [API Documentation](#api-documentation)
 *   [API Endpoints](#api-endpoints)
+*   [Error Handling](#error-handling)
+*   [CORS Configuration](#cors-configuration)
+*   [Testing](#testing)
 *   [Database Schema](#database-schema)
 *   [Contributing](#contributing)
 *   [License](#license)
@@ -67,19 +72,34 @@ The project follows a standard Spring Boot application structure:
 └── pom.xml
 ```
 
+## Environment Variables
+
+Create a `.env` file in the root of the project and add the following environment variables:
+
+```
+DB_URL=jdbc:mysql://localhost:3306/farmhub
+DB_USERNAME=your-db-username
+DB_PASSWORD=your-db-password
+JWT_SECRET_KEY=your-jwt-secret
+JWT_EXPIRATION_MS=86400000
+```
+
+| Variable            | Description                               | Default     |
+| ------------------- | ----------------------------------------- | ----------- |
+| `DB_URL`            | The connection URL for the MySQL database. |             |
+| `DB_USERNAME`       | The username for the MySQL database.      |             |
+| `DB_PASSWORD`       | The password for the MySQL database.      |             |
+| `JWT_SECRET_KEY`    | The secret key for signing JWT tokens.    |             |
+| `JWT_EXPIRATION_MS` | The expiration time for JWT tokens in milliseconds. | `86400000` (24 hours) |
+
+
 ## How to Run
 
 1.  **Clone the repository:**
     ```bash
     git clone <repository-url>
     ```
-2.  **Create a `.env` file** in the root of the project and add the following environment variables:
-    ```
-    DB_URL=jdbc:mysql://localhost:3306/farmhub
-    DB_USERNAME=your-db-username
-    DB_PASSWORD=your-db-password
-    JWT_SECRET=your-jwt-secret
-    ```
+2.  **Create a `.env` file** in the root of the project and add the environment variables as described in the [Environment Variables](#environment-variables) section.
 3.  **Create the database:** Make sure you have a MySQL database named `farmhub`.
 4.  **Build the project:**
     ```bash
@@ -91,201 +111,47 @@ The project follows a standard Spring Boot application structure:
     ```
 The application will be available at `http://localhost:8080`.
 
-## API Endpoints
+## API Documentation
 
 The API is documented using Swagger. Once the application is running, you can access the Swagger UI at `http://localhost:8080/swagger-ui.html`.
 
+## API Endpoints
+
 ### Authentication
 
-#### Register
+*   `POST /api/auth/**`: Public endpoints for user registration and login.
 
-*   `POST /api/auth/register`: Register a new user.
+### Other Endpoints
 
-**Request Body:**
+All other endpoints under `/api/` require authentication.
 
-```json
-{
-    "full_name": "Test User",
-    "email": "testuser@example.com",
-    "password": "password123",
-    "phone_number": "1234567890",
-    "location": "Nairobi"
-}
+## Error Handling
+
+The application uses a `GlobalExceptionHandler` to provide consistent error responses. The following are the most common error types:
+
+| Status Code | Error Type                | Description                                                                        |
+| ----------- | ------------------------- | ---------------------------------------------------------------------------------- |
+| 400         | `Validation Failed`       | The request body is invalid. The response will contain a list of validation errors. |
+| 401         | `Unauthorized`            | Invalid credentials or missing JWT token.                                          |
+| 403         | `Forbidden`               | The user is not authorized to perform the requested action.                        |
+| 404         | `Not Found`               | The requested resource was not found.                                              |
+| 409         | `Conflict`                | The request could not be completed due to a conflict with the current state of the resource. |
+| 500         | `Internal Server Error`   | An unexpected error occurred on the server.                                        |
+
+## CORS Configuration
+
+CORS (Cross-Origin Resource Sharing) is configured to allow requests from the following origins:
+
+*   `http://localhost:5173`
+*   `http://localhost:5174`
+
+## Testing
+
+To run the integration tests, use the following command:
+
+```bash
+./mvnw test
 ```
-
-**Success Response (201 Created):**
-
-```json
-{
-    "id": "3e476a91-0fdf-40b3-becf-7683a5aaa54d",
-    "name": "Test User",
-    "email": "testuser5@example.com",
-    "phone": "1234567890"
-}
-```
-
-**Error Responses:**
-
-*   **400 Bad Request (Missing Fields):**
-
-```json
-{
-    "message": [
-        {
-            "password": "Password is required.",
-            "phone_number": "Phone number is required."
-        }
-    ]
-}
-```
-
-*   **409 Conflict (Email already exists):**
-
-```json
-{
-    "message": [
-        {
-            "message": "An account with this email already exists."
-        }
-    ]
-}
-```
-
-#### Login
-
-*   `POST /api/auth/login`: Login a user and get a JWT token.
-
-**Request Body:**
-
-```json
-{
-    "email": "testuser@example.com",
-    "password": "password13"
-}
-```
-
-**Success Response (200 OK):**
-
-*   **Body:**
-
-```json
-{
-    "id": "65ea53b5-c5fa-4de0-ba45-e6c6dc5482b9",
-    "name": "Test User",
-    "email": "testuser@example.com",
-    "phone": "1234567890"
-}
-```
-
-*   **Cookie:**
-    *   `jwt`: HTTP-only cookie containing the JWT token.
-
-**Error Response (401 Unauthorized):**
-
-```json
-{
-    "message": [
-        {
-            "message": "Invalid email or password."
-        }
-    ]
-}
-```
-
-### User Management
-
-#### Get User
-
-*   `GET /api/users/{id}`: Get user by ID.
-
-**Success Response (200 OK):**
-
-```json
-{
-    "id": "65ea53b5-c5fa-4de0-ba45-e6c6dc5482b9",
-    "name": "Test User",
-    "email": "testuser@example.com",
-    "phone": "1234567890"
-}
-```
-
-**Error Response (404 Not Found):**
-
-#### Update User
-
-*   `PUT /api/users/{id}`: Update user by ID.
-
-**Request Body:**
-
-```json
-{
-    "name": "Updated User Name"
-}
-```
-
-**Success Response (204 No Content):**
-
-#### Delete User
-
-*   `DELETE /api/users/{id}`: Delete user by ID.
-
-**Success Response (204 No Content):**
-
-### Produce Management
-
-#### Create Produce
-
-*   `POST /api/produce`: Create a new produce listing.
-
-**Request Body:**
-
-```json
-{
-    "name": "Tomatoes",
-    "cropType": "Fruit",
-    "description": "Fresh, red tomatoes",
-    "unit": "kg",
-    "quantity": 100.0,
-    "pricePerUnit": 2.50,
-    "imageUrl": "http://example.com/tomato.jpg",
-    "harvestDate": "2025-10-31T10:00:00Z"
-}
-```
-
-**Success Response (201 Created):**
-
-#### Get All Produce
-
-*   `GET /api/produce`: Get a list of all produce.
-
-**Success Response (200 OK):**
-
-#### Get Produce by ID
-
-*   `GET /api/produce/{id}`: Get a single produce listing by ID.
-
-**Success Response (200 OK):**
-
-#### Update Produceb
-
-*   `PATCH /api/produce/{id}`: Partially update a produce listing.
-
-**Request Body:**
-
-```json
-{
-    "quantity": 50.0,
-    "pricePerUnit": 2.75
-}
-```
-
-**Success Response (200 OK):**
-
-#### Delete Produce
-
-*   `DELETE /api/produce/{id}`: Delete a produce listing.
-
-**Success Response (204 No Content):**
 
 ## Database Schema
 
@@ -298,13 +164,3 @@ Contributions are welcome! Please feel free to submit a pull request.
 ## License
 
 This project is licensed under the MIT License.
-
-## Changelog
-
-### 2025-11-01
-
-*   Implemented `UserService` to handle `getData`, `updateData`, and `deleteData` operations.
-*   Created `UserController` to expose user management operations via a REST API.
-*   Added endpoints for getting, updating, and deleting users.
-*   Implemented `ProduceService` and `ProduceControllers` to manage produce listings.
-*   Added CRUD endpoints for produce.
