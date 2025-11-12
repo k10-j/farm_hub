@@ -7,17 +7,43 @@ export function PestDiagnosis() {
     const [showResults, setShowResults] = useState(false);
     const cropTypes = ['Maize', 'Beans', 'Cassava', 'Rice', 'Potato', 'Banana'];
     const symptoms = ['Yellow Leaves', 'Spots', 'Wilting', 'Holes', 'Mold', 'Discoloration'];
-    const handleImageUpload = (e) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setSelectedImage(reader.result);
-                setTimeout(() => setShowResults(true), 1500);
-            };
-            reader.readAsDataURL(file);
-        }
+const [diagnosisResult, setDiagnosisResult] = useState(null); // new state
+
+const handleImageUpload = async (e) => {
+  const file = e.target.files?.[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setSelectedImage(reader.result);
     };
+    reader.readAsDataURL(file);
+
+    // Prepare form data for backend
+    const formData = new FormData();
+    formData.append("image", file);
+
+    try {
+      const res = await fetch("https://farm-hub.onrender.com/api/detect-disease", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+
+      const data = await res.json();
+      console.log("Diagnosis result:", data);
+
+      setDiagnosisResult(data);
+      setShowResults(true); // show the results section
+
+    } catch (error) {
+      console.error("Image analysis failed:", error);
+    }
+  }
+};
+
     return <div className="min-h-screen bg-gradient-to-b from-green-50 pt-40 to-white w-full font-serif">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             {/* Header */}

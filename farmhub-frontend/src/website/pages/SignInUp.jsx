@@ -8,6 +8,7 @@ export function SignInUp() {
     const location = useLocation();
     const initialMode = location.state?.mode || 'signin';
     const [isSignUp, setIsSignUp] = useState(false);
+
     useEffect(() => {
         if (location.state?.mode === 'signup') {
             setIsSignUp(true);
@@ -25,16 +26,67 @@ export function SignInUp() {
         confirmPassword: ''
     });
     const navigate = useNavigate();
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        // Handle authentication logic here
-        // For now, just navigate to dashboard
-    };
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  try {
+    let url = "";
+    let payload = {};
+
+    if (isSignUp) {
+      // SIGN UP PAYLOAD
+      payload = {
+        full_name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        phone_number: formData.phone,
+        location: formData.location,
+      };
+      url = "https://farm-hub.onrender.com/api/auth/register";
+    } else {
+      // SIGN IN PAYLOAD
+      payload = {
+        email: formData.email,
+        password: formData.password,
+      };
+      url = "https://farm-hub.onrender.com/api/auth/login";
+    }
+
+    console.log("Sending payload:", payload);
+
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      console.error("Error response:", data);
+      throw new Error(data.message || "Request failed");
+    }
+
+    console.log(isSignUp ? "Registration successful:" : "Login successful:", data);
+
+    // Example: navigate to dashboard on success
+    navigate("/dashboard");
+
+  } catch (error) {
+    console.error("Error:", error.message);
+  }
+};
+
+
     const handleChange = (e) => {
         setFormData({
             ...formData,
             [e.target.name]: e.target.value
         });
+       
     };
     return <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-50 md:pt-56 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl w-full grid lg:grid-cols-2 gap-8 items-center">
