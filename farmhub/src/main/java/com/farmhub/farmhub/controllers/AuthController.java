@@ -7,7 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 
 import java.util.Map;
-
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -43,18 +43,28 @@ public ResponseEntity<UserResponseDto> login(@RequestBody LoginRequest payload, 
 //     "jwt=%s; HttpOnly; Secure; Path=/; Max-Age=3600; SameSite=None; Domain=farm-hub.onrender.com",
 //     authResponse.getToken()
 // );
-String cookieString = String.format(
-    "jwt=%s; HttpOnly; Secure; Path=/; Max-Age=3600; SameSite=None",
-    authResponse.getToken()
-);
+// String cookieString = String.format(
+//     "jwt=%s; HttpOnly; Secure; Path=/; Max-Age=3600; SameSite=None",
+//     authResponse.getToken()
+// );
 
     // String cookieString = String.format(
     //         "jwt=%s; HttpOnly; Secure; Path=/; Max-Age=3600; SameSite=None", 
     //         authResponse.getToken()
     // );
+    ResponseCookie cookie = ResponseCookie.from("jwt", authResponse.getToken())
+        .httpOnly(true)
+        .secure(true)
+        .sameSite("None")
+        .path("/")
+        .maxAge(3600)
+        .build();
+
+response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+
 
     // Add the cookie string directly to the response headers
-    response.addHeader(HttpHeaders.SET_COOKIE, cookieString);
+    // response.addHeader(HttpHeaders.SET_COOKIE, cookieString);
     
     // --- END OF FIX ---
 
