@@ -30,7 +30,7 @@ public class SecurityConfiguration {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/detect-disease/**").authenticated()
+                        .requestMatchers("/api/detect-disease/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
