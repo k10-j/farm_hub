@@ -38,6 +38,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (jwtCookie == null) {
             filterChain.doFilter(request, response); 
+            System.out.println("Cookies: " + (request.getCookies() != null ? request.getCookies().length : 0));
+
             return;
         }
 
