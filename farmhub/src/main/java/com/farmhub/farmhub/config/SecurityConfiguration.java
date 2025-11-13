@@ -43,20 +43,44 @@ public class SecurityConfiguration {
     }
 
     // --- 2. ADD THIS ENTIRE BEAN ---
+    // @Bean
+    // public CorsConfigurationSource corsConfigurationSource() {
+    //     CorsConfiguration configuration = new CorsConfiguration();
+        
+    //     configuration.setAllowedOrigins(Arrays.asList("https://farm-hub-iota.vercel.app","https://farm-hub3-odyf.vercel.app","https://farm-hub3-rt15.vercel.app","http://localhost:5173","http://localhost:5174","https://farmhub-9qun.vercel.app","https://farm-hub3.vercel.app"));
+        
+    //     configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        
+    //     configuration.setAllowedHeaders(Arrays.asList("*"));
+        
+    //     configuration.setAllowCredentials(true);
+        
+    //     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    //     source.registerCorsConfiguration("/**", configuration); 
+    //     return source;
+    // }
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        
-        configuration.setAllowedOrigins(Arrays.asList("https://farm-hub-iota.vercel.app","https://farm-hub3-odyf.vercel.app","https://farm-hub3-rt15.vercel.app","http://localhost:5173","http://localhost:5174","https://farmhub-9qun.vercel.app","https://farm-hub3.vercel.app"));
-        
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        
-        configuration.setAllowedHeaders(Arrays.asList("*"));
-        
-        configuration.setAllowCredentials(true);
-        
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration); 
-        return source;
-    }
+public CorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration configuration = new CorsConfiguration();
+
+    configuration.setAllowedOriginPatterns(Arrays.asList(
+        "https://farm-hub-iota.vercel.app",
+        "https://farm-hub3-odyf.vercel.app",
+        "https://farm-hub3-rt15.vercel.app",
+        "http://localhost:5173",
+        "http://localhost:5174",
+        "https://farmhub-9qun.vercel.app",
+        "https://farm-hub3.vercel.app"
+    ));
+
+    configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+    configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With"));
+    configuration.setAllowCredentials(true);
+    configuration.setMaxAge(3600L); // Optional cache for preflight
+
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/**", configuration);
+    return source;
+}
+
 }
