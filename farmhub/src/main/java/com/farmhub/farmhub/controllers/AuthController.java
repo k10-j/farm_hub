@@ -39,11 +39,15 @@ public ResponseEntity<UserResponseDto> login(@RequestBody LoginRequest payload, 
     // --- START OF FIX ---
     // We build the cookie as a String to include SameSite=None,
     // which is required for cross-domain requests.
+String cookieString = String.format(
+    "jwt=%s; HttpOnly; Secure; Path=/; Max-Age=3600; SameSite=None; Domain=farm-hub.onrender.com",
+    authResponse.getToken()
+);
 
-    String cookieString = String.format(
-            "jwt=%s; HttpOnly; Secure; Path=/; Max-Age=3600; SameSite=None", 
-            authResponse.getToken()
-    );
+    // String cookieString = String.format(
+    //         "jwt=%s; HttpOnly; Secure; Path=/; Max-Age=3600; SameSite=None", 
+    //         authResponse.getToken()
+    // );
 
     // Add the cookie string directly to the response headers
     response.addHeader(HttpHeaders.SET_COOKIE, cookieString);
