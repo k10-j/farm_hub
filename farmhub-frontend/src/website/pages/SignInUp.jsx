@@ -61,6 +61,7 @@ const handleSubmit = async (e) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(payload),
+      credentials: "include"
     });
 
     const data = await res.json();
