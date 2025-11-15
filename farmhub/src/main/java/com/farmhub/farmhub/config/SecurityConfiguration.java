@@ -59,11 +59,13 @@ public class SecurityConfiguration {
     //     source.registerCorsConfiguration("/**", configuration); 
     //     return source;
     // }
-    @Bean
+ @Bean
 public CorsConfigurationSource corsConfigurationSource() {
-    CorsConfiguration configuration = new CorsConfiguration();
+    CorsConfiguration config = new CorsConfiguration();
 
-    configuration.setAllowedOriginPatterns(Arrays.asList(
+    config.setAllowCredentials(true);
+
+    config.setAllowedOrigins(Arrays.asList(
         "https://farm-hub-iota.vercel.app",
         "https://farm-hub3-odyf.vercel.app",
         "https://farm-hub3-rt15.vercel.app",
@@ -73,13 +75,12 @@ public CorsConfigurationSource corsConfigurationSource() {
         "https://farm-hub3.vercel.app"
     ));
 
-    configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-    configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With"));
-    configuration.setAllowCredentials(true);
-    configuration.setMaxAge(3600L); // Optional cache for preflight
+    config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+    config.setAllowedHeaders(Arrays.asList("*"));
+    config.setExposedHeaders(Arrays.asList("Set-Cookie")); // <-- REQUIRED
 
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/**", configuration);
+    source.registerCorsConfiguration("/**", config);
     return source;
 }
 
