@@ -54,11 +54,12 @@ public ResponseEntity<UserResponseDto> login(@RequestBody LoginRequest payload, 
     // );
     ResponseCookie cookie = ResponseCookie.from("jwt", authResponse.getToken())
         .httpOnly(true)
-        .secure(true)
+        .secure(true) // REQUIRED for SameSite=None
         .sameSite("None")
         .path("/")
-        .maxAge(3600)
+        .maxAge(24 * 60 * 60)
         .build();
+
 
 response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
