@@ -123,7 +123,7 @@ const ProductCard = ({ product, animation,onBuyNow }) => {
     disabled={!product.inStock}
     onClick={onBuyNow}
     className={`flex-1 py-2 rounded-lg font-medium text-sm ${
-      product.inStock ? "bg-blue-600 text-white hover:bg-blue-700" : "bg-gray-200 text-gray-400"
+      product.inStock ? "bg-amber-600 text-white hover:bg-amber-700" : "bg-gray-200 text-gray-400"
     }`}
   >
     Buy Now
