@@ -1,31 +1,52 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Navbar from "./website/Components/Navbar";
+import CartProvider from './website/context/CartProvider';
+
+// Public pages
+import WebsiteLayout from "./website/Layout";
 import Home from "./website/pages/Home";
 import Equipment from "./website/pages/Equipement";
-import Footer from "./website/Components/Footer";
 import About from "./website/pages/About";
 import PestDiagnosis from "./website/pages/PestDiagnosis";
 import Marketplace from "./website/pages/MarketPlace";
-import SignInUp from "./website/pages/SignInUp";
 import ProductPage from "./website/pages/product/[id]";
-import CartProvider from './website/context/CartProvider';
+import SignInUp from "./website/pages/SignInUp";
+
+
+// Dashboard pages
+import DashboardLayout from "./UserDashboard/DashLayout";
+import Overview from "./UserDashboard/Overview";
+import MarketplaceDash from "./UserDashboard/MarketDash/MarketplaceDash";
+import PestDiagnosisDash from "./UserDashboard/Diagnosis/pestDash"
 
 function App() {
   return (
     <BrowserRouter>
       <CartProvider>
-        <Navbar />
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/equipement" element={<Equipment />} />
-          <Route path="/About" element={<About />} />
-          <Route path="/marketplace" element={<Marketplace />} />
-          <Route path="/pest-diagnosis" element={<PestDiagnosis />} />
-          <Route path="/product/:id" element={<ProductPage />} />
-          <Route path="/signinup" element={<SignInUp />} />
+
+          {/* PUBLIC WEBSITE ROUTES */}
+          <Route element={<WebsiteLayout />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/equipement" element={<Equipment />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/marketplace" element={<Marketplace />} />
+            <Route path="/pest-diagnosis" element={<PestDiagnosis />} />
+            <Route path="/product/:id" element={<ProductPage />} />
+            <Route path="/signinup" element={<SignInUp />} />
+          </Route>
+
+          {/* DASHBOARD ROUTES */}
+          <Route path="/dashboard" element={<DashboardLayout />}>
+            <Route index element={<Overview />} />
+            <Route path="/dashboard/marketplace" element={<MarketplaceDash />} />
+             <Route path="/dashboard/diagnosis" element={<PestDiagnosisDash />} />
+             {/* <Route path="/product/:id" element={<ProductPage />} /> */}
+
+            {/* you can add more dashboard pages here */}
+          </Route>
+
         </Routes>
       </CartProvider>
-      <Footer />
     </BrowserRouter>
   );
 }
