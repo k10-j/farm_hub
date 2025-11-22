@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, MapPin, Calendar, Clock, User, Phone } from 'lucide-react';
 import BookingForm from '../components/BookingForm';
 
 const EquipmentDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
     const [equipment, setEquipment] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -15,6 +16,13 @@ const EquipmentDetail = () => {
         setEquipment(found);
         setLoading(false);
     }, [id]);
+
+    const handleBack = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        // Navigate directly to book equipment tab
+        navigate('/dashboard/equipment/book', { replace: false });
+    };
 
     if (loading) {
         return (
@@ -30,8 +38,9 @@ const EquipmentDetail = () => {
                 <div className="text-center py-12">
                     <p className="text-gray-600 text-lg">Equipment not found.</p>
                     <button
-                        onClick={() => navigate('/dashboard/equipment')}
-                        className="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                        type="button"
+                        onClick={handleBack}
+                        className="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors cursor-pointer"
                     >
                         Back to Equipment
                     </button>
@@ -45,8 +54,9 @@ const EquipmentDetail = () => {
     return (
         <div className="px-6 py-6 max-w-7xl mx-auto">
             <button
-                onClick={() => navigate('/dashboard/equipment')}
-                className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6"
+                type="button"
+                onClick={handleBack}
+                className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors cursor-pointer hover:underline focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 rounded px-2 py-1"
             >
                 <ArrowLeft className="w-5 h-5" />
                 Back to Equipment

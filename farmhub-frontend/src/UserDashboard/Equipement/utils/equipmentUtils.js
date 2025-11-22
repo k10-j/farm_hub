@@ -89,13 +89,13 @@ export const getAvailableEquipment = () => {
   );
 };
 
-export const getUserEquipment = (userId) => {
+export const getUserEquipment = (_userId) => {
   const equipment = JSON.parse(localStorage.getItem('equipment') || '[]');
   // In production, filter by userId
   return equipment;
 };
 
-export const getUserOrders = (userId) => {
+export const getUserOrders = (_userId) => {
   const orders = JSON.parse(localStorage.getItem('equipmentOrders') || '[]');
   // In production, filter by userId (equipment owner)
   return orders;

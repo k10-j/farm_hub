@@ -95,7 +95,7 @@ const BookingForm = ({ equipment, availableSlots }) => {
         }
 
         alert('Booking submitted successfully!');
-        navigate('/dashboard/equipment');
+        navigate('/dashboard/equipment/book');
     };
 
     return (

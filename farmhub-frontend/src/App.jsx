@@ -18,6 +18,9 @@ import Overview from "./UserDashboard/Overview";
 import MarketplaceDash from "./UserDashboard/MarketDash/MarketplaceDash";
 import PestDiagnosisDash from "./UserDashboard/Diagnosis/pestDash";
 import EquipementDash from "./UserDashboard/Equipement/EquipementDash";
+import BookEquipment from "./UserDashboard/Equipement/tabs/BookEquipement";
+import ShareEquipment from "./UserDashboard/Equipement/tabs/Myequipement";
+import OrdersEquipment from "./UserDashboard/Equipement/tabs/OrderedEquipment";
 import EquipmentDetail from "./UserDashboard/Equipement/pages/EquipmentDetail";
 import AddEquipment from "./UserDashboard/Equipement/pages/AddEquipment";
 import EditEquipment from "./UserDashboard/Equipement/pages/EditEquipment";
@@ -44,10 +47,15 @@ function App() {
             <Route index element={<Overview />} />
             <Route path="/dashboard/marketplace" element={<MarketplaceDash />} />
             <Route path="/dashboard/diagnosis" element={<PestDiagnosisDash />} />
-            <Route path="/dashboard/equipment" element={<EquipementDash />} />
-            <Route path="/dashboard/equipment/add" element={<AddEquipment />} />
-            <Route path="/dashboard/equipment/edit/:id" element={<EditEquipment />} />
-            <Route path="/dashboard/equipment/:id" element={<EquipmentDetail />} />
+            <Route path="equipment" element={<EquipementDash />}>
+              <Route index element={<BookEquipment />} />
+              <Route path="book" element={<BookEquipment />} />
+              <Route path="share" element={<ShareEquipment />} />
+              <Route path="orders" element={<OrdersEquipment />} />
+            </Route>
+            <Route path="equipment/add" element={<AddEquipment />} />
+            <Route path="equipment/edit/:id" element={<EditEquipment />} />
+            <Route path="equipment/detail/:id" element={<EquipmentDetail />} />
             {/* <Route path="/product/:id" element={<ProductPage />} /> */}
 
             {/* you can add more dashboard pages here */}

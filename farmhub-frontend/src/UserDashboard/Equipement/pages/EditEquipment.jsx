@@ -16,6 +16,13 @@ const EditEquipment = () => {
         setLoading(false);
     }, [id]);
 
+    const handleBack = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        // Navigate directly to share equipment tab
+        navigate('/dashboard/equipment/share', { replace: false });
+    };
+
     const handleSubmit = (formData) => {
         const allEquipment = JSON.parse(localStorage.getItem('equipment') || '[]');
         const index = allEquipment.findIndex((eq) => eq.id === id);
@@ -28,7 +35,7 @@ const EditEquipment = () => {
             };
             localStorage.setItem('equipment', JSON.stringify(allEquipment));
             alert('Equipment updated successfully!');
-            navigate('/dashboard/equipment');
+            navigate('/dashboard/equipment/share');
         }
     };
 
@@ -46,8 +53,9 @@ const EditEquipment = () => {
                 <div className="text-center py-12">
                     <p className="text-gray-600 text-lg">Equipment not found.</p>
                     <button
-                        onClick={() => navigate('/dashboard/equipment')}
-                        className="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                        type="button"
+                        onClick={handleBack}
+                        className="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors cursor-pointer"
                     >
                         Back to Equipment
                     </button>
@@ -59,8 +67,9 @@ const EditEquipment = () => {
     return (
         <div className="px-6 py-6 max-w-4xl mx-auto">
             <button
-                onClick={() => navigate('/dashboard/equipment')}
-                className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6"
+                type="button"
+                onClick={handleBack}
+                className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors cursor-pointer hover:underline focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 rounded px-2 py-1"
             >
                 <ArrowLeft className="w-5 h-5" />
                 Back to Equipment

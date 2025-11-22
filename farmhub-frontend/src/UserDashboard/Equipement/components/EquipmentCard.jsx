@@ -7,7 +7,7 @@ const EquipmentCard = ({ equipment }) => {
     const isAvailable = equipment.availability === 'AVAILABLE';
 
     const handleViewDetails = () => {
-        navigate(`/dashboard/equipment/${equipment.id}`);
+        navigate(`/dashboard/equipment/detail/${equipment.id}`);
     };
 
     return (
@@ -49,8 +49,8 @@ const EquipmentCard = ({ equipment }) => {
                 <button
                     onClick={handleViewDetails}
                     className={`w-full mt-4 flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-white font-medium ${isAvailable
-                            ? 'bg-green-600 hover:bg-green-700'
-                            : 'bg-gray-400 cursor-not-allowed'
+                        ? 'bg-green-600 hover:bg-green-700'
+                        : 'bg-gray-400 cursor-not-allowed'
                         }`}
                     disabled={!isAvailable}
                 >
