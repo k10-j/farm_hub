@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Plus, X } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Plus, X, Upload, Image as ImageIcon } from 'lucide-react';
 
 const EquipmentForm = ({ onSubmit, initialData }) => {
     const [formData, setFormData] = useState({
@@ -20,6 +20,8 @@ const EquipmentForm = ({ onSubmit, initialData }) => {
     });
 
     const [errors, setErrors] = useState({});
+    const [imagePreview, setImagePreview] = useState('');
+    const fileInputRef = useRef(null);
 
     useEffect(() => {
         if (initialData) {
@@ -33,6 +35,10 @@ const EquipmentForm = ({ onSubmit, initialData }) => {
                 image: initialData.image || '',
                 availableSlots: initialData.availableSlots || []
             });
+            // Set image preview if image exists
+            if (initialData.image) {
+                setImagePreview(initialData.image);
+            }
         }
     }, [initialData]);
 
@@ -75,6 +81,57 @@ const EquipmentForm = ({ onSubmit, initialData }) => {
             ...prev,
             availableSlots: prev.availableSlots.filter((_, i) => i !== index)
         }));
+    };
+
+    const handleImageUpload = (e) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            // Check file type
+            if (!file.type.startsWith('image/')) {
+                alert('Please upload an image file (PNG, JPG, JPEG, or WebP)');
+                return;
+            }
+
+            // Check file size (max 10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                alert('Image size must be less than 10MB');
+                return;
+            }
+
+            // Create preview and convert to base64
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const base64String = reader.result;
+                setImagePreview(base64String);
+                setFormData((prev) => ({ ...prev, image: base64String }));
+            };
+            reader.onerror = () => {
+                alert('Error reading image file. Please try again.');
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleImageRemove = () => {
+        setImagePreview('');
+        setFormData((prev) => ({ ...prev, image: '' }));
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+    };
+
+    const handleImageUrlUpload = () => {
+        const url = prompt('Enter image URL:');
+        if (url) {
+            // Basic URL validation
+            try {
+                new URL(url);
+                setImagePreview(url);
+                setFormData((prev) => ({ ...prev, image: url }));
+            } catch (e) {
+                alert('Please enter a valid URL');
+            }
+        }
     };
 
     const handleSubmit = (e) => {
@@ -202,15 +259,70 @@ const EquipmentForm = ({ onSubmit, initialData }) => {
             </div>
 
             <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Image URL</label>
-                <input
-                    type="url"
-                    name="image"
-                    value={formData.image}
-                    onChange={handleChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
-                    placeholder="https://example.com/image.jpg"
-                />
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <div className="flex items-center gap-2">
+                        <ImageIcon className="w-4 h-4 text-green-600" />
+                        Equipment Image
+                    </div>
+                </label>
+
+                {imagePreview ? (
+                    <div className="relative">
+                        <img
+                            src={imagePreview}
+                            alt="Equipment preview"
+                            className="w-full h-64 object-cover rounded-lg border-2 border-gray-300"
+                        />
+                        <button
+                            type="button"
+                            onClick={handleImageRemove}
+                            className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition"
+                            aria-label="Remove image"
+                        >
+                            <X className="w-5 h-5" />
+                        </button>
+                    </div>
+                ) : (
+                    <div className="space-y-3">
+                        {/* File Upload */}
+                        <div
+                            onClick={() => fileInputRef.current?.click()}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault();
+                                    fileInputRef.current?.click();
+                                }
+                            }}
+                            role="button"
+                            tabIndex={0}
+                            className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-green-500 hover:bg-green-50 transition"
+                        >
+                            <Upload className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                            <p className="text-gray-600 font-medium mb-1">Click to upload image</p>
+                            <p className="text-sm text-gray-500">PNG, JPG, JPEG, WebP up to 10MB</p>
+                        </div>
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            className="hidden"
+                            aria-label="Upload equipment image"
+                        />
+
+                        {/* URL Upload Option */}
+                        <div className="text-center">
+                            <span className="text-gray-500 text-sm">or</span>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={handleImageUrlUpload}
+                            className="w-full py-3 border-2 border-gray-300 rounded-lg text-gray-700 font-medium hover:border-green-500 hover:bg-green-50 transition"
+                        >
+                            Enter Image URL
+                        </button>
+                    </div>
+                )}
             </div>
 
             <div>

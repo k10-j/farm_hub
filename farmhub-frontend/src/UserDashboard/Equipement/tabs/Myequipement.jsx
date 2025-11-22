@@ -2,10 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 import MyEquipmentCard from '../components/MyEquipmentCard';
+import BookingsModal from '../components/BookingsModal';
 
 const ShareEquipment = () => {
     const navigate = useNavigate();
     const [myEquipment, setMyEquipment] = useState([]);
+    const [selectedEquipment, setSelectedEquipment] = useState(null);
+    const [showBookingsModal, setShowBookingsModal] = useState(false);
+    const [bookings, setBookings] = useState([]);
+
+    // Mock current user ID - in real app, get from auth context
+    const currentUserId = 'current-user-id';
 
     const loadEquipment = () => {
         // Load user's equipment from localStorage
@@ -39,6 +46,21 @@ const ShareEquipment = () => {
         }
     };
 
+    const handleViewBookings = (equipment) => {
+        // Get all orders for this equipment
+        const allOrders = JSON.parse(localStorage.getItem('equipmentOrders') || '[]');
+        const equipmentBookings = allOrders.filter((order) => order.equipmentId === equipment.id);
+        setSelectedEquipment(equipment);
+        setBookings(equipmentBookings);
+        setShowBookingsModal(true);
+    };
+
+    const handleCloseBookingsModal = () => {
+        setShowBookingsModal(false);
+        setSelectedEquipment(null);
+        setBookings([]);
+    };
+
     return (
         <div>
             <div className="flex justify-between items-center mb-6">
@@ -60,6 +82,7 @@ const ShareEquipment = () => {
                             equipment={item}
                             onEdit={handleEdit}
                             onDelete={handleDelete}
+                            onViewBookings={handleViewBookings}
                         />
                     ))}
                 </div>
@@ -74,6 +97,14 @@ const ShareEquipment = () => {
                         Add Your First Equipment
                     </button>
                 </div>
+            )}
+
+            {showBookingsModal && selectedEquipment && (
+                <BookingsModal
+                    equipment={selectedEquipment}
+                    bookings={bookings}
+                    onClose={handleCloseBookingsModal}
+                />
             )}
         </div>
     );

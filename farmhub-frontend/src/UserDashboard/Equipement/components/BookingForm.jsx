@@ -54,6 +54,7 @@ const BookingForm = ({ equipment, availableSlots }) => {
             id: `order-${Date.now()}`,
             equipmentId: equipment.id,
             equipmentName: equipment.name,
+            customerId: 'current-user-id', // In real app, get from auth context
             customerName: formData.customerName,
             customerPhone: formData.customerPhone,
             customerLocation: formData.customerLocation,

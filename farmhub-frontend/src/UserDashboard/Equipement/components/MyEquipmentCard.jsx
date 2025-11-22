@@ -1,9 +1,10 @@
 import React from 'react';
-import { MapPin, Edit, Trash2 } from 'lucide-react';
+import { MapPin, Edit, Trash2, Users } from 'lucide-react';
 
-const MyEquipmentCard = ({ equipment, onEdit, onDelete }) => {
+const MyEquipmentCard = ({ equipment, onEdit, onDelete, onViewBookings }) => {
     const availableSlots = equipment.availableSlots?.filter(slot => !slot.booked) || [];
     const isAvailable = availableSlots.length > 0;
+    const isFullyBooked = !isAvailable && equipment.availableSlots?.length > 0;
 
     return (
         <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow">
@@ -41,19 +42,29 @@ const MyEquipmentCard = ({ equipment, onEdit, onDelete }) => {
                     </div>
                 </div>
 
-                <div className="flex gap-2 mt-4">
-                    <button
-                        onClick={() => onEdit(equipment)}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                    >
-                        <Edit className="w-4 h-4" /> Edit
-                    </button>
-                    <button
-                        onClick={() => onDelete(equipment.id)}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-                    >
-                        <Trash2 className="w-4 h-4" /> Delete
-                    </button>
+                <div className="flex flex-col gap-2 mt-4">
+                    {isFullyBooked && (
+                        <button
+                            onClick={() => onViewBookings(equipment)}
+                            className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+                        >
+                            <Users className="w-4 h-4" /> View Bookings
+                        </button>
+                    )}
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() => onEdit(equipment)}
+                            className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                        >
+                            <Edit className="w-4 h-4" /> Edit
+                        </button>
+                        <button
+                            onClick={() => onDelete(equipment.id)}
+                            className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                        >
+                            <Trash2 className="w-4 h-4" /> Delete
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
