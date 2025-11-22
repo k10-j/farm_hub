@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { Leaf, Menu, X, User, ChevronDown } from "lucide-react";
 
- const FarmerNavbar = () => {
+const FarmerNavbar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const dashboardLinks = [
@@ -10,7 +10,7 @@ import { Leaf, Menu, X, User, ChevronDown } from "lucide-react";
     { name: "Marketplace", to: "/dashboard/marketplace" },
     { name: "Equipment Hub", to: "/dashboard/equipment" },
     { name: "Diagnosis", to: "/dashboard/diagnosis" },
-    { name: "Orders", to: "/dashboard/Orders" },
+    { name: "Orders", to: "/dashboard/orders" },
   ];
 
   return (
@@ -39,10 +39,9 @@ import { Leaf, Menu, X, User, ChevronDown } from "lucide-react";
                   key={link.name}
                   to={link.to}
                   className={({ isActive }) =>
-                    `text-sm font-medium pb-3 border-b-2 transition-colors ${
-                      isActive
-                        ? "text-green-700 border-green-700 font-semibold"
-                        : "text-gray-700 hover:text-green-700 border-transparent"
+                    `text-sm font-medium pb-3 border-b-2 transition-colors ${isActive
+                      ? "text-green-700 border-green-700 font-semibold"
+                      : "text-gray-700 hover:text-green-700 border-transparent"
                     }`
                   }
                 >
@@ -73,9 +72,8 @@ import { Leaf, Menu, X, User, ChevronDown } from "lucide-react";
 
         {/* MOBILE MENU DRAWER */}
         <div
-          className={`md:hidden fixed top-0 right-0 h-full w-80 bg-white shadow-2xl transform ${
-            isOpen ? "translate-x-0" : "translate-x-full"
-          } transition-transform duration-300 ease-in-out z-50`}
+          className={`md:hidden fixed top-0 right-0 h-full w-80 bg-white shadow-2xl transform ${isOpen ? "translate-x-0" : "translate-x-full"
+            } transition-transform duration-300 ease-in-out z-50`}
         >
           <div className="px-6 py-5 flex justify-between items-center border-b bg-gradient-to-r from-green-50 to-white">
             <div className="flex items-center space-x-2">
@@ -98,8 +96,7 @@ import { Leaf, Menu, X, User, ChevronDown } from "lucide-react";
                   to={link.to}
                   onClick={() => setIsOpen(false)}
                   className={({ isActive }) =>
-                    `block px-4 py-3 rounded-lg my-1 font-medium transition-colors ${
-                      isActive ? "bg-green-50 text-green-700" : "hover:bg-gray-50"
+                    `block px-4 py-3 rounded-lg my-1 font-medium transition-colors ${isActive ? "bg-green-50 text-green-700" : "hover:bg-gray-50"
                     }`
                   }
                 >
