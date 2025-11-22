@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { Leaf, Menu, X, User, ChevronDown } from "lucide-react";
 
- const FarmerNavbar = () => {
+const FarmerNavbar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const dashboardLinks = [
@@ -10,7 +10,7 @@ import { Leaf, Menu, X, User, ChevronDown } from "lucide-react";
     { name: "Marketplace", to: "/dashboard/marketplace" },
     { name: "Equipment Hub", to: "/dashboard/equipment" },
     { name: "Diagnosis", to: "/dashboard/diagnosis" },
-    { name: "Orders", to: "/dashboard/Orders" },
+    { name: "Orders", to: "/dashboard/orders" },
   ];
 
   return (
@@ -39,10 +39,9 @@ import { Leaf, Menu, X, User, ChevronDown } from "lucide-react";
                   key={link.name}
                   to={link.to}
                   className={({ isActive }) =>
-                    `text-sm font-medium pb-3 border-b-2 transition-colors ${
-                      isActive
-                        ? "text-green-700 border-green-700 font-semibold"
-                        : "text-gray-700 hover:text-green-700 border-transparent"
+                    `text-sm font-medium pb-3 border-b-2 transition-colors ${isActive
+                      ? "text-green-700 border-green-700 font-semibold"
+                      : "text-gray-700 hover:text-green-700 border-transparent"
                     }`
                   }
                 >
@@ -52,14 +51,20 @@ import { Leaf, Menu, X, User, ChevronDown } from "lucide-react";
             </div>
 
             {/* PROFILE */}
-            <div className="hidden md:flex items-center space-x-2 cursor-pointer group">
+            <NavLink
+              to="/dashboard/profile"
+              className={({ isActive }) =>
+                `hidden md:flex items-center space-x-2 cursor-pointer group ${isActive ? 'text-green-700' : ''
+                }`
+              }
+            >
               <div className="bg-gray-100 p-2 rounded-full group-hover:bg-green-50 transition">
                 <User className="w-5 h-5 text-gray-700 group-hover:text-green-700" />
               </div>
               <span className="text-sm font-semibold text-gray-800 flex items-center">
                 My Profile <ChevronDown className="w-3 h-3 ml-1" />
               </span>
-            </div>
+            </NavLink>
 
             {/* MOBILE MENU BUTTON */}
             <button
@@ -73,9 +78,8 @@ import { Leaf, Menu, X, User, ChevronDown } from "lucide-react";
 
         {/* MOBILE MENU DRAWER */}
         <div
-          className={`md:hidden fixed top-0 right-0 h-full w-80 bg-white shadow-2xl transform ${
-            isOpen ? "translate-x-0" : "translate-x-full"
-          } transition-transform duration-300 ease-in-out z-50`}
+          className={`md:hidden fixed top-0 right-0 h-full w-80 bg-white shadow-2xl transform ${isOpen ? "translate-x-0" : "translate-x-full"
+            } transition-transform duration-300 ease-in-out z-50`}
         >
           <div className="px-6 py-5 flex justify-between items-center border-b bg-gradient-to-r from-green-50 to-white">
             <div className="flex items-center space-x-2">
@@ -98,8 +102,7 @@ import { Leaf, Menu, X, User, ChevronDown } from "lucide-react";
                   to={link.to}
                   onClick={() => setIsOpen(false)}
                   className={({ isActive }) =>
-                    `block px-4 py-3 rounded-lg my-1 font-medium transition-colors ${
-                      isActive ? "bg-green-50 text-green-700" : "hover:bg-gray-50"
+                    `block px-4 py-3 rounded-lg my-1 font-medium transition-colors ${isActive ? "bg-green-50 text-green-700" : "hover:bg-gray-50"
                     }`
                   }
                 >
@@ -111,9 +114,13 @@ import { Leaf, Menu, X, User, ChevronDown } from "lucide-react";
 
           {/* PROFILE BUTTON */}
           <div className="absolute bottom-0 left-0 right-0 p-6 border-t bg-gray-50">
-            <button className="w-full bg-green-700 hover:bg-green-800 text-white py-3 rounded-lg font-medium flex items-center justify-center">
+            <NavLink
+              to="/dashboard/profile"
+              onClick={() => setIsOpen(false)}
+              className="w-full bg-green-700 hover:bg-green-800 text-white py-3 rounded-lg font-medium flex items-center justify-center"
+            >
               My Profile
-            </button>
+            </NavLink>
           </div>
         </div>
 
