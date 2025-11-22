@@ -16,7 +16,11 @@ import SignInUp from "./website/pages/SignInUp";
 import DashboardLayout from "./UserDashboard/DashLayout";
 import Overview from "./UserDashboard/Overview";
 import MarketplaceDash from "./UserDashboard/MarketDash/MarketplaceDash";
-import PestDiagnosisDash from "./UserDashboard/Diagnosis/pestDash"
+import PestDiagnosisDash from "./UserDashboard/Diagnosis/pestDash";
+import EquipementDash from "./UserDashboard/Equipement/EquipementDash";
+import EquipmentDetail from "./UserDashboard/Equipement/pages/EquipmentDetail";
+import AddEquipment from "./UserDashboard/Equipement/pages/AddEquipment";
+import EditEquipment from "./UserDashboard/Equipement/pages/EditEquipment";
 
 function App() {
   return (
@@ -39,8 +43,12 @@ function App() {
           <Route path="/dashboard" element={<DashboardLayout />}>
             <Route index element={<Overview />} />
             <Route path="/dashboard/marketplace" element={<MarketplaceDash />} />
-             <Route path="/dashboard/diagnosis" element={<PestDiagnosisDash />} />
-             {/* <Route path="/product/:id" element={<ProductPage />} /> */}
+            <Route path="/dashboard/diagnosis" element={<PestDiagnosisDash />} />
+            <Route path="/dashboard/equipment" element={<EquipementDash />} />
+            <Route path="/dashboard/equipment/add" element={<AddEquipment />} />
+            <Route path="/dashboard/equipment/edit/:id" element={<EditEquipment />} />
+            <Route path="/dashboard/equipment/:id" element={<EquipmentDetail />} />
+            {/* <Route path="/product/:id" element={<ProductPage />} /> */}
 
             {/* you can add more dashboard pages here */}
           </Route>
