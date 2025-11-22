@@ -1,7 +1,11 @@
 import React from 'react';
-import { Calendar, MapPin, Phone, Package } from 'lucide-react';
+import { Calendar, MapPin, Phone, Package, AlertCircle } from 'lucide-react';
 
 const MyOrderCard = ({ order }) => {
+    // Calculate late return charge (20% of daily rate per day)
+    const dailyRate = order.equipment?.dailyRate || 0;
+    const lateReturnCharge = dailyRate * 0.2;
+
     return (
         <div className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow">
             <div className="flex justify-between items-start mb-4">
@@ -44,11 +48,31 @@ const MyOrderCard = ({ order }) => {
                     </div>
                 </div>
 
+                {/* Late Return Charges Notice */}
+                {lateReturnCharge > 0 && (
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                        <div className="flex items-start gap-2">
+                            <AlertCircle className="w-4 h-4 text-yellow-600 flex-shrink-0 mt-0.5" />
+                            <div>
+                                <p className="text-xs font-semibold text-yellow-800 mb-1">Late Return Charges</p>
+                                <p className="text-xs text-yellow-700">
+                                    Return by {order.endDate} {order.endTime} or pay <strong>RWF {lateReturnCharge.toLocaleString()} per day</strong> late
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 <div className="pt-3 border-t border-gray-200">
                     <div className="flex justify-between items-center">
                         <span className="text-gray-600 text-sm">Total Amount:</span>
-                        <span className="text-green-600 font-bold">RWF {order.totalAmount}</span>
+                        <span className="text-green-600 font-bold">RWF {order.totalAmount?.toLocaleString() || 0}</span>
                     </div>
+                    {order.paymentStatus === 'PAID' && (
+                        <div className="flex items-center gap-1 mt-2">
+                            <span className="text-xs text-green-600 font-semibold">✓ Payment Confirmed</span>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
@@ -56,4 +80,3 @@ const MyOrderCard = ({ order }) => {
 };
 
 export default MyOrderCard;
-

@@ -30,18 +30,28 @@ const AllOrders = () => {
         // Load equipment orders
         const equipmentOrders = JSON.parse(localStorage.getItem('equipmentOrders') || '[]');
 
-        // Load equipment to identify owner
+        // Load equipment to identify owner and enrich orders
         const allEquipment = JSON.parse(localStorage.getItem('equipment') || '[]');
+
+        // Enrich equipment orders with equipment data
+        const enrichedEquipmentOrders = equipmentOrders.map(order => {
+            const equipment = allEquipment.find(eq => eq.id === order.equipmentId);
+            return {
+                ...order,
+                equipment: equipment
+            };
+        });
+
         const myEquipmentIds = allEquipment
             .filter((eq) => eq.owner?.id === currentUserId)
             .map((eq) => eq.id);
 
         // Separate orders
-        const ordersFromMe = equipmentOrders.filter((order) =>
+        const ordersFromMe = enrichedEquipmentOrders.filter((order) =>
             myEquipmentIds.includes(order.equipmentId)
         );
 
-        const myOrders = equipmentOrders.filter((order) => {
+        const myOrders = enrichedEquipmentOrders.filter((order) => {
             return order.customerId === currentUserId ||
                 order.customerName === 'Current User' ||
                 order.customerName === 'Test User';
@@ -49,7 +59,7 @@ const AllOrders = () => {
 
         setAllOrders({
             marketplace: marketplaceOrders,
-            equipment: equipmentOrders,
+            equipment: enrichedEquipmentOrders,
             fromMe: ordersFromMe,
             myOrders: myOrders
         });

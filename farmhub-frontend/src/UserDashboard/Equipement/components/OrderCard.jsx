@@ -1,7 +1,11 @@
 import React from 'react';
-import { Calendar, User, Phone, MapPin } from 'lucide-react';
+import { Calendar, User, Phone, MapPin, AlertCircle } from 'lucide-react';
 
 const OrderCard = ({ order }) => {
+    // Calculate late return charge (20% of daily rate per day)
+    const dailyRate = order.equipment?.dailyRate || 0;
+    const lateReturnCharge = dailyRate * 0.2;
+
     return (
         <div className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow">
             <div className="flex justify-between items-start mb-4">
@@ -14,7 +18,9 @@ const OrderCard = ({ order }) => {
                             ? 'bg-green-100 text-green-700'
                             : order.status === 'PENDING'
                                 ? 'bg-yellow-100 text-yellow-700'
-                                : 'bg-gray-100 text-gray-700'
+                                : order.status === 'COMPLETED'
+                                    ? 'bg-blue-100 text-blue-700'
+                                    : 'bg-gray-100 text-gray-700'
                         }`}
                 >
                     {order.status}
@@ -45,11 +51,31 @@ const OrderCard = ({ order }) => {
                     </div>
                 </div>
 
+                {/* Late Return Charges Notice */}
+                {lateReturnCharge > 0 && (
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                        <div className="flex items-start gap-2">
+                            <AlertCircle className="w-4 h-4 text-yellow-600 flex-shrink-0 mt-0.5" />
+                            <div>
+                                <p className="text-xs font-semibold text-yellow-800 mb-1">Late Return Charges</p>
+                                <p className="text-xs text-yellow-700">
+                                    RWF {lateReturnCharge.toLocaleString()} per day if returned late
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 <div className="pt-3 border-t border-gray-200">
                     <div className="flex justify-between items-center">
                         <span className="text-gray-600 text-sm">Total Amount:</span>
-                        <span className="text-green-600 font-bold">RWF {order.totalAmount}</span>
+                        <span className="text-green-600 font-bold">RWF {order.totalAmount?.toLocaleString() || 0}</span>
                     </div>
+                    {order.paymentStatus === 'PAID' && (
+                        <div className="flex items-center gap-1 mt-2">
+                            <span className="text-xs text-green-600 font-semibold">✓ Payment Confirmed</span>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

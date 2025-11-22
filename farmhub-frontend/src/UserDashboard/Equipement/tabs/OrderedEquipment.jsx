@@ -19,9 +19,18 @@ const OrdersEquipment = () => {
         const allOrders = JSON.parse(localStorage.getItem('equipmentOrders') || '[]');
         const allEquipment = JSON.parse(localStorage.getItem('equipment') || '[]');
 
+        // Enrich orders with equipment data
+        const enrichedOrders = allOrders.map(order => {
+            const equipment = allEquipment.find(eq => eq.id === order.equipmentId);
+            return {
+                ...order,
+                equipment: equipment
+            };
+        });
+
         // Orders I made (where I'm the customer)
         // Filter by customerId or customerName for demo purposes
-        const myBookings = allOrders.filter((order) => {
+        const myBookings = enrichedOrders.filter((order) => {
             return order.customerId === currentUserId ||
                 order.customerName === 'Current User' ||
                 order.customerName === 'Test User'; // For demo compatibility
@@ -31,7 +40,7 @@ const OrdersEquipment = () => {
         const myEquipmentIds = allEquipment
             .filter((eq) => eq.owner?.id === currentUserId)
             .map((eq) => eq.id);
-        const ordersForMyEquipment = allOrders.filter((order) =>
+        const ordersForMyEquipment = enrichedOrders.filter((order) =>
             myEquipmentIds.includes(order.equipmentId)
         );
 
@@ -69,8 +78,8 @@ const OrdersEquipment = () => {
                     <button
                         onClick={() => setActiveTab('forMe')}
                         className={`pb-3 px-1 font-medium text-sm transition-colors ${activeTab === 'forMe'
-                                ? 'text-green-700 border-b-2 border-green-700'
-                                : 'text-gray-600 hover:text-gray-900'
+                            ? 'text-green-700 border-b-2 border-green-700'
+                            : 'text-gray-600 hover:text-gray-900'
                             }`}
                     >
                         Orders for My Equipment ({ordersForMe.length})
@@ -78,8 +87,8 @@ const OrdersEquipment = () => {
                     <button
                         onClick={() => setActiveTab('myOrders')}
                         className={`pb-3 px-1 font-medium text-sm transition-colors ${activeTab === 'myOrders'
-                                ? 'text-green-700 border-b-2 border-green-700'
-                                : 'text-gray-600 hover:text-gray-900'
+                            ? 'text-green-700 border-b-2 border-green-700'
+                            : 'text-gray-600 hover:text-gray-900'
                             }`}
                     >
                         My Orders ({myOrders.length})

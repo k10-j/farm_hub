@@ -24,6 +24,8 @@ import OrdersEquipment from "./UserDashboard/Equipement/tabs/OrderedEquipment";
 import EquipmentDetail from "./UserDashboard/Equipement/pages/EquipmentDetail";
 import AddEquipment from "./UserDashboard/Equipement/pages/AddEquipment";
 import EditEquipment from "./UserDashboard/Equipement/pages/EditEquipment";
+import EquipmentPaymentPage from "./UserDashboard/Equipement/pages/EquipmentPaymentPage";
+import EquipmentConfirmationPage from "./UserDashboard/Equipement/pages/EquipmentConfirmationPage";
 import AllOrders from "./UserDashboard/Orders/AllOrders";
 import ProfilePage from "./UserDashboard/Profile/ProfilePage";
 
@@ -58,6 +60,8 @@ function App() {
             <Route path="equipment/add" element={<AddEquipment />} />
             <Route path="equipment/edit/:id" element={<EditEquipment />} />
             <Route path="equipment/detail/:id" element={<EquipmentDetail />} />
+            <Route path="equipment/payment" element={<EquipmentPaymentPage />} />
+            <Route path="equipment/confirmation" element={<EquipmentConfirmationPage />} />
             <Route path="orders" element={<AllOrders />} />
             <Route path="profile" element={<ProfilePage />} />
             {/* <Route path="/product/:id" element={<ProductPage />} /> */}

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, Clock } from 'lucide-react';
+import { Calendar, Clock, CreditCard } from 'lucide-react';
 
 const BookingForm = ({ equipment, availableSlots }) => {
     const navigate = useNavigate();
@@ -49,11 +49,12 @@ const BookingForm = ({ equipment, availableSlots }) => {
         const selectedSlotIndex = parseInt(formData.selectedSlot);
         const selectedSlot = availableSlots[selectedSlotIndex];
 
-        // Create order
-        const order = {
+        // Create booking data (not saved yet - will be saved after payment)
+        const bookingData = {
             id: `order-${Date.now()}`,
             equipmentId: equipment.id,
             equipmentName: equipment.name,
+            equipment: equipment, // Include full equipment object
             customerId: 'current-user-id', // In real app, get from auth context
             customerName: formData.customerName,
             customerPhone: formData.customerPhone,
@@ -65,38 +66,13 @@ const BookingForm = ({ equipment, availableSlots }) => {
             bookingType: formData.bookingType,
             duration: parseInt(formData.duration),
             totalAmount: calculateTotal(),
+            selectedSlot: selectedSlot,
             status: 'PENDING',
             createdAt: new Date().toISOString()
         };
 
-        // Save order
-        const orders = JSON.parse(localStorage.getItem('equipmentOrders') || '[]');
-        orders.push(order);
-        localStorage.setItem('equipmentOrders', JSON.stringify(orders));
-
-        // Mark slot as booked
-        const allEquipment = JSON.parse(localStorage.getItem('equipment') || '[]');
-        const equipmentIndex = allEquipment.findIndex((eq) => eq.id === equipment.id);
-        if (equipmentIndex !== -1) {
-            const slotIndex = allEquipment[equipmentIndex].availableSlots.findIndex(
-                (slot) =>
-                    slot.date === selectedSlot.date &&
-                    slot.startTime === selectedSlot.startTime &&
-                    slot.endTime === selectedSlot.endTime
-            );
-            if (slotIndex !== -1) {
-                allEquipment[equipmentIndex].availableSlots[slotIndex].booked = true;
-                // Check if all slots are booked
-                const allBooked = allEquipment[equipmentIndex].availableSlots.every((s) => s.booked);
-                if (allBooked) {
-                    allEquipment[equipmentIndex].availability = 'UNAVAILABLE';
-                }
-                localStorage.setItem('equipment', JSON.stringify(allEquipment));
-            }
-        }
-
-        alert('Booking submitted successfully!');
-        navigate('/dashboard/equipment/book');
+        // Navigate to payment page with booking data
+        navigate('/dashboard/equipment/payment', { state: { bookingData } });
     };
 
     return (
@@ -222,9 +198,10 @@ const BookingForm = ({ equipment, availableSlots }) => {
 
             <button
                 type="submit"
-                className="w-full py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors"
+                className="w-full py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
             >
-                Confirm Booking
+                <CreditCard className="w-5 h-5" />
+                Proceed to Payment
             </button>
         </form>
     );
