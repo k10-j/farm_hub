@@ -67,12 +67,13 @@ public CorsConfigurationSource corsConfigurationSource() {
 
     config.setAllowedOrigins(Arrays.asList(
         "https://farm-hub-iota.vercel.app",
-        "https://farm-hub3-odyf.vercel.app",
-        "https://farm-hub3-rt15.vercel.app",
+        // "https://farm-hub3-odyf.vercel.app",
+        // "https://farm-hub3-rt15.vercel.app",
+        "https://farm-hub4.vercel.app",
         "http://localhost:5173",
         "http://localhost:5174",
-        "https://farmhub-9qun.vercel.app",
-        "https://farm-hub3.vercel.app"
+        // "https://farmhub-9qun.vercel.app",
+        // "https://farm-hub3.vercel.app"
     ));
 
     config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
