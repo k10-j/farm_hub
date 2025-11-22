@@ -51,13 +51,13 @@ const About = () => {
 
   const Team = [
     {
-      name: "Iriza",
+      name: "Kate Iriza",
       role: "Project Founder",
       image: Iriza,
       bio: "Visionary behind FarmHub, driving innovation and empowering farmers through technology.",
     },
     {
-      name: "Twariki",
+      name: "Twariki Abdalaziz",
       role: "Project Lead",
       image: "https://api.dicebear.com/7.x/avataaars/svg?seed=Twariki",
       bio: "Coordinating the team, managing timelines, and ensuring FarmHub meets its goals.",
@@ -75,7 +75,7 @@ const About = () => {
       bio: "Designing and implementing the FarmHub interface for a smooth user experience.",
     },
     {
-      name: "Innocent",
+      name: "Innocent Muvunyi",
       role: "Backend Developer",
       image: Innocent,
       bio: "Building the robust backend systems that power FarmHub's marketplace and diagnostics.",
