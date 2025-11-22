@@ -51,14 +51,20 @@ const FarmerNavbar = () => {
             </div>
 
             {/* PROFILE */}
-            <div className="hidden md:flex items-center space-x-2 cursor-pointer group">
+            <NavLink
+              to="/dashboard/profile"
+              className={({ isActive }) =>
+                `hidden md:flex items-center space-x-2 cursor-pointer group ${isActive ? 'text-green-700' : ''
+                }`
+              }
+            >
               <div className="bg-gray-100 p-2 rounded-full group-hover:bg-green-50 transition">
                 <User className="w-5 h-5 text-gray-700 group-hover:text-green-700" />
               </div>
               <span className="text-sm font-semibold text-gray-800 flex items-center">
                 My Profile <ChevronDown className="w-3 h-3 ml-1" />
               </span>
-            </div>
+            </NavLink>
 
             {/* MOBILE MENU BUTTON */}
             <button
@@ -108,9 +114,13 @@ const FarmerNavbar = () => {
 
           {/* PROFILE BUTTON */}
           <div className="absolute bottom-0 left-0 right-0 p-6 border-t bg-gray-50">
-            <button className="w-full bg-green-700 hover:bg-green-800 text-white py-3 rounded-lg font-medium flex items-center justify-center">
+            <NavLink
+              to="/dashboard/profile"
+              onClick={() => setIsOpen(false)}
+              className="w-full bg-green-700 hover:bg-green-800 text-white py-3 rounded-lg font-medium flex items-center justify-center"
+            >
               My Profile
-            </button>
+            </NavLink>
           </div>
         </div>
 

@@ -25,6 +25,7 @@ import EquipmentDetail from "./UserDashboard/Equipement/pages/EquipmentDetail";
 import AddEquipment from "./UserDashboard/Equipement/pages/AddEquipment";
 import EditEquipment from "./UserDashboard/Equipement/pages/EditEquipment";
 import AllOrders from "./UserDashboard/Orders/AllOrders";
+import ProfilePage from "./UserDashboard/Profile/ProfilePage";
 
 function App() {
   return (
@@ -58,6 +59,7 @@ function App() {
             <Route path="equipment/edit/:id" element={<EditEquipment />} />
             <Route path="equipment/detail/:id" element={<EquipmentDetail />} />
             <Route path="orders" element={<AllOrders />} />
+            <Route path="profile" element={<ProfilePage />} />
             {/* <Route path="/product/:id" element={<ProductPage />} /> */}
 
             {/* you can add more dashboard pages here */}
