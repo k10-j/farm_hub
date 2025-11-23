@@ -1,28 +1,49 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import EquipmentCard from "../Components/equipement/EquipementCard";
 import EquipmentFilterSidebar from "../Components/equipement/FilterEquipe";
-import equipmentData from "../Components/equipement/EquipementData";
+import { equipmentAPI } from "../../utils/api";
 
 export default function EquipmentPage() {
+  const [equipmentData, setEquipmentData] = useState([]);
   const [selectedType, setSelectedType] = useState("All");
   const [availabilityFilter, setAvailabilityFilter] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadEquipment();
+  }, []);
+
+  const loadEquipment = async () => {
+    try {
+      setLoading(true);
+      const data = await equipmentAPI.getAll();
+      setEquipmentData(data || []);
+    } catch (error) {
+      console.error("Error loading equipment:", error);
+      setEquipmentData([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Unique types for filter dropdown
   const equipmentTypes = [
     "All",
-    ...new Set(equipmentData.map((item) => item.type)),
+    ...new Set(equipmentData.map((item) => item.type || item.equipmentType).filter(Boolean)),
   ];
 
   // Filter logic
   const filteredEquipment = equipmentData.filter((item) => {
     const matchesType =
-      selectedType === "All" || item.type === selectedType;
+      selectedType === "All" || item.type === selectedType || item.equipmentType === selectedType;
     const matchesAvailability =
-      availabilityFilter === "All" || item.availability === availabilityFilter;
+      availabilityFilter === "All" ||
+      item.availability === availabilityFilter ||
+      item.availabilityStatus === availabilityFilter;
     const matchesSearch =
-      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.location.toLowerCase().includes(searchTerm.toLowerCase());
+      item.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.location?.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesType && matchesAvailability && matchesSearch;
   });
 
@@ -37,7 +58,7 @@ export default function EquipmentPage() {
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
         equipmentTypes={equipmentTypes}
-        
+
       />
 
       {/* Main Content */}
@@ -46,7 +67,11 @@ export default function EquipmentPage() {
           Available Equipment
         </h2>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredEquipment.length > 0 ? (
+          {loading ? (
+            <p className="text-gray-500 text-center col-span-full">
+              Loading equipment...
+            </p>
+          ) : filteredEquipment.length > 0 ? (
             filteredEquipment.map((item) => (
               <EquipmentCard key={item.id} equipment={item} />
             ))

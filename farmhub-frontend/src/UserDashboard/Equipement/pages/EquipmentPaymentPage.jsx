@@ -1,11 +1,14 @@
 import React, { useState } from "react";
 import { CreditCard, Smartphone, Lock, ArrowLeft, AlertCircle } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { bookingsAPI } from "../../../utils/api";
+import { transformBookingData } from "../../../utils/dataTransformers";
 
 const EquipmentPaymentPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const bookingData = location.state?.bookingData;
+    const [loading, setLoading] = useState(false);
 
     const [paymentMethod, setPaymentMethod] = useState("mpesa");
     const [mobileMoneyPhone, setMobileMoneyPhone] = useState("");
@@ -34,60 +37,43 @@ const EquipmentPaymentPage = () => {
     const total = bookingData.totalAmount || 0;
     const lateReturnCharge = bookingData.equipment?.dailyRate * 0.2 || 0; // 20% of daily rate per day
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const paymentData = {
-            method: paymentMethod,
-            ...(paymentMethod === "mpesa" || paymentMethod === "mobilemoney"
-                ? { phone: mobileMoneyPhone, provider: mobileMoneyProvider }
-                : paymentMethod === "card"
-                    ? { cardNumber, cardExpiry, cardCVV }
-                    : { paypalEmail })
-        };
+        try {
+            setLoading(true);
 
-        // Create order with payment info
-        const order = {
-            ...bookingData,
-            paymentData,
-            paymentStatus: 'PAID',
-            status: 'CONFIRMED',
-            paidAt: new Date().toISOString()
-        };
+            const paymentData = {
+                method: paymentMethod,
+                ...(paymentMethod === "mpesa" || paymentMethod === "mobilemoney"
+                    ? { phone: mobileMoneyPhone, provider: mobileMoneyProvider }
+                    : paymentMethod === "card"
+                        ? { cardNumber, cardExpiry, cardCVV }
+                        : { paypalEmail })
+            };
 
-        // Save order
-        const orders = JSON.parse(localStorage.getItem('equipmentOrders') || '[]');
-        orders.push(order);
-        localStorage.setItem('equipmentOrders', JSON.stringify(orders));
+            // Transform booking data to backend format
+            const backendBookingData = transformBookingData(bookingData);
 
-        // Mark slot as booked
-        const allEquipment = JSON.parse(localStorage.getItem('equipment') || '[]');
-        const equipmentIndex = allEquipment.findIndex((eq) => eq.id === bookingData.equipmentId);
-        if (equipmentIndex !== -1) {
-            const selectedSlot = bookingData.selectedSlot;
-            const slotIndex = allEquipment[equipmentIndex].availableSlots.findIndex(
-                (slot) =>
-                    slot.date === selectedSlot.date &&
-                    slot.startTime === selectedSlot.startTime &&
-                    slot.endTime === selectedSlot.endTime
-            );
-            if (slotIndex !== -1) {
-                allEquipment[equipmentIndex].availableSlots[slotIndex].booked = true;
-                const allBooked = allEquipment[equipmentIndex].availableSlots.every((s) => s.booked);
-                if (allBooked) {
-                    allEquipment[equipmentIndex].availability = 'UNAVAILABLE';
+            console.log('Creating booking with data:', backendBookingData);
+
+            // Create booking via API
+            const createdBooking = await bookingsAPI.create(backendBookingData);
+
+            // Navigate to confirmation with booking and payment data
+            navigate('/dashboard/equipment/confirmation', {
+                state: {
+                    bookingData: createdBooking,
+                    paymentData,
+                    originalBookingData: bookingData
                 }
-                localStorage.setItem('equipment', JSON.stringify(allEquipment));
-            }
+            });
+        } catch (error) {
+            console.error('Error creating booking:', error);
+            alert('Failed to create booking: ' + (error.message || 'Unknown error'));
+        } finally {
+            setLoading(false);
         }
-
-        // Navigate to confirmation
-        navigate('/dashboard/equipment/confirmation', {
-            state: {
-                bookingData: order,
-                paymentData
-            }
-        });
     };
 
     return (
@@ -338,10 +324,11 @@ const EquipmentPaymentPage = () => {
                                 <div className="space-y-3">
                                     <button
                                         type="submit"
-                                        className="w-full bg-green-600 text-white py-4 rounded-lg hover:bg-green-700 transition font-bold text-lg shadow-lg flex items-center justify-center gap-2"
+                                        disabled={loading}
+                                        className="w-full bg-green-600 text-white py-4 rounded-lg hover:bg-green-700 transition font-bold text-lg shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         <Lock className="w-5 h-5" />
-                                        Pay RWF {total.toLocaleString()}
+                                        {loading ? 'Processing...' : `Pay RWF ${total.toLocaleString()}`}
                                     </button>
 
                                     <button

@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { CreditCard, Smartphone, Lock, ArrowLeft } from "lucide-react";
+import { ordersAPI } from "../../../utils/api";
+import { transformOrderData } from "../../../utils/dataTransformers";
 
 const PaymentPage = ({ product, shippingInfo, onBackToCheckout, onPaymentSuccess }) => {
   const [paymentMethod, setPaymentMethod] = useState("mpesa");
@@ -9,6 +11,7 @@ const PaymentPage = ({ product, shippingInfo, onBackToCheckout, onPaymentSuccess
   const [cardExpiry, setCardExpiry] = useState("");
   const [cardCVV, setCardCVV] = useState("");
   const [paypalEmail, setPaypalEmail] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const quantity = shippingInfo.quantity || 1;
   const shippingCost = 5000;
@@ -16,20 +19,40 @@ const PaymentPage = ({ product, shippingInfo, onBackToCheckout, onPaymentSuccess
   const subtotal = product.price * quantity;
   const total = subtotal + shippingCost + tax;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    const paymentData = {
-      method: paymentMethod,
-      ...(paymentMethod === "mpesa" || paymentMethod === "mobilemoney" 
-        ? { phone: mobileMoneyPhone, provider: mobileMoneyProvider }
-        : paymentMethod === "card"
-        ? { cardNumber, cardExpiry, cardCVV }
-        : { paypalEmail })
-    };
 
-    alert(`Payment of RWF ${total.toLocaleString()} successful via ${paymentMethod.toUpperCase()}!`);
-    onPaymentSuccess(paymentData);
+    try {
+      setLoading(true);
+
+      const paymentData = {
+        method: paymentMethod,
+        ...(paymentMethod === "mpesa" || paymentMethod === "mobilemoney"
+          ? { phone: mobileMoneyPhone, provider: mobileMoneyProvider }
+          : paymentMethod === "card"
+            ? { cardNumber, cardExpiry, cardCVV }
+            : { paypalEmail })
+      };
+
+      // Transform order data to backend format
+      const orderData = transformOrderData({
+        produceId: product.id,
+        quantity: quantity,
+      });
+
+      console.log('Creating order with data:', orderData);
+
+      // Create order via API
+      const createdOrder = await ordersAPI.create(orderData);
+
+      alert(`Payment of RWF ${total.toLocaleString()} successful via ${paymentMethod.toUpperCase()}!`);
+      onPaymentSuccess({ ...paymentData, order: createdOrder });
+    } catch (error) {
+      console.error('Error creating order:', error);
+      alert('Failed to create order: ' + (error.message || 'Unknown error'));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -76,9 +99,8 @@ const PaymentPage = ({ product, shippingInfo, onBackToCheckout, onPaymentSuccess
                 {/* Payment Method Selection */}
                 <div className="space-y-3">
                   {/* M-Pesa */}
-                  <label className={`flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition ${
-                    paymentMethod === "mpesa" ? "border-green-500 bg-green-50" : "border-gray-300 hover:border-green-300"
-                  }`}>
+                  <label className={`flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition ${paymentMethod === "mpesa" ? "border-green-500 bg-green-50" : "border-gray-300 hover:border-green-300"
+                    }`}>
                     <input
                       type="radio"
                       name="payment"
@@ -92,9 +114,8 @@ const PaymentPage = ({ product, shippingInfo, onBackToCheckout, onPaymentSuccess
                   </label>
 
                   {/* Mobile Money */}
-                  <label className={`flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition ${
-                    paymentMethod === "mobilemoney" ? "border-green-500 bg-green-50" : "border-gray-300 hover:border-green-300"
-                  }`}>
+                  <label className={`flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition ${paymentMethod === "mobilemoney" ? "border-green-500 bg-green-50" : "border-gray-300 hover:border-green-300"
+                    }`}>
                     <input
                       type="radio"
                       name="payment"
@@ -108,9 +129,8 @@ const PaymentPage = ({ product, shippingInfo, onBackToCheckout, onPaymentSuccess
                   </label>
 
                   {/* Card */}
-                  <label className={`flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition ${
-                    paymentMethod === "card" ? "border-green-500 bg-green-50" : "border-gray-300 hover:border-green-300"
-                  }`}>
+                  <label className={`flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition ${paymentMethod === "card" ? "border-green-500 bg-green-50" : "border-gray-300 hover:border-green-300"
+                    }`}>
                     <input
                       type="radio"
                       name="payment"
@@ -124,9 +144,8 @@ const PaymentPage = ({ product, shippingInfo, onBackToCheckout, onPaymentSuccess
                   </label>
 
                   {/* PayPal */}
-                  <label className={`flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition ${
-                    paymentMethod === "paypal" ? "border-green-500 bg-green-50" : "border-gray-300 hover:border-green-300"
-                  }`}>
+                  <label className={`flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition ${paymentMethod === "paypal" ? "border-green-500 bg-green-50" : "border-gray-300 hover:border-green-300"
+                    }`}>
                     <input
                       type="radio"
                       name="payment"
@@ -294,12 +313,13 @@ const PaymentPage = ({ product, shippingInfo, onBackToCheckout, onPaymentSuccess
                 <div className="space-y-3">
                   <button
                     type="submit"
-                    className="w-full bg-green-600 text-white py-4 rounded-lg hover:bg-green-700 transition font-bold text-lg shadow-lg flex items-center justify-center gap-2"
+                    disabled={loading}
+                    className="w-full bg-green-600 text-white py-4 rounded-lg hover:bg-green-700 transition font-bold text-lg shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <Lock className="w-5 h-5" />
-                    Pay RWF {total.toLocaleString()}
+                    {loading ? 'Processing...' : `Pay RWF ${total.toLocaleString()}`}
                   </button>
-                  
+
                   <button
                     type="button"
                     onClick={onBackToCheckout}

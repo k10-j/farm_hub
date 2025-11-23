@@ -1,12 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { History, Settings, LogOut, User, ArrowLeft } from 'lucide-react';
 import ProfileHistory from './ProfileHistory';
 import ProfileSettings from './ProfileSettings';
+import { usersAPI } from '../../utils/api';
 
 const ProfilePage = () => {
     const navigate = useNavigate();
     const [activeSection, setActiveSection] = useState('history');
+    const [userData, setUserData] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        loadUserData();
+    }, []);
+
+    const loadUserData = async () => {
+        try {
+            setLoading(true);
+            const userStr = localStorage.getItem('user');
+            const currentUser = userStr ? JSON.parse(userStr) : null;
+
+            if (currentUser && currentUser.id) {
+                const data = await usersAPI.getById(currentUser.id);
+                setUserData(data);
+            } else {
+                // Fallback to localStorage data
+                setUserData(currentUser);
+            }
+        } catch (error) {
+            console.error("Error loading user data:", error);
+            // Fallback to localStorage
+            const userStr = localStorage.getItem('user');
+            setUserData(userStr ? JSON.parse(userStr) : null);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleLogout = () => {
         if (window.confirm('Are you sure you want to logout?')) {
@@ -49,8 +79,12 @@ const ProfilePage = () => {
                                     <User className="w-8 h-8" />
                                 </div>
                                 <div>
-                                    <h2 className="font-semibold text-lg">Current User</h2>
-                                    <p className="text-sm text-green-100">Farmer</p>
+                                    <h2 className="font-semibold text-lg">
+                                        {userData?.name || userData?.full_name || 'Current User'}
+                                    </h2>
+                                    <p className="text-sm text-green-100">
+                                        {userData?.email || 'Farmer'}
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -64,8 +98,8 @@ const ProfilePage = () => {
                                         key={item.id}
                                         onClick={() => setActiveSection(item.id)}
                                         className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors ${activeSection === item.id
-                                                ? 'bg-green-50 text-green-700 font-semibold'
-                                                : 'text-gray-700 hover:bg-gray-50'
+                                            ? 'bg-green-50 text-green-700 font-semibold'
+                                            : 'text-gray-700 hover:bg-gray-50'
                                             }`}
                                     >
                                         <Icon className="w-5 h-5" />

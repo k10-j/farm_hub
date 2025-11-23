@@ -2,15 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { Filter, Package, Wrench, ShoppingBag, Calendar } from 'lucide-react';
 import OrderCard from '../Equipement/components/OrderCard';
 import MyOrderCard from '../Equipement/components/MyOrderCard';
+import { ordersAPI, bookingsAPI, equipmentAPI } from '../../utils/api';
 
 const AllOrders = () => {
     const [activeTab, setActiveTab] = useState('all');
     const [typeFilter, setTypeFilter] = useState('all'); // all, marketplace, equipment
     const [statusFilter, setStatusFilter] = useState('all');
     const [showFilters, setShowFilters] = useState(false);
+    const [loading, setLoading] = useState(true);
 
-    // Mock current user ID
-    const currentUserId = 'current-user-id';
+    // Get current user from localStorage
+    const getUser = () => {
+        const userStr = localStorage.getItem('user');
+        return userStr ? JSON.parse(userStr) : null;
+    };
 
     const [allOrders, setAllOrders] = useState({
         marketplace: [],
@@ -23,46 +28,52 @@ const AllOrders = () => {
         loadAllOrders();
     }, []);
 
-    const loadAllOrders = () => {
-        // Load marketplace orders (you'll need to check how these are stored)
-        const marketplaceOrders = JSON.parse(localStorage.getItem('marketplaceOrders') || '[]');
+    const loadAllOrders = async () => {
+        try {
+            setLoading(true);
+            const currentUser = getUser();
+            if (!currentUser || !currentUser.id) {
+                console.error("User not found");
+                return;
+            }
 
-        // Load equipment orders
-        const equipmentOrders = JSON.parse(localStorage.getItem('equipmentOrders') || '[]');
+            // Fetch all data in parallel
+            const [marketplaceOrders, equipmentBookings, bookingsForMyEquipment, myEquipment] = await Promise.all([
+                ordersAPI.getMyOrders().catch(() => []),
+                bookingsAPI.getMyBookings().catch(() => []),
+                bookingsAPI.getMyEquipmentBookings().catch(() => []),
+                equipmentAPI.getMyEquipment().catch(() => [])
+            ]);
 
-        // Load equipment to identify owner and enrich orders
-        const allEquipment = JSON.parse(localStorage.getItem('equipment') || '[]');
+            // Get my equipment IDs
+            const myEquipmentIds = myEquipment.map(eq => eq.id);
 
-        // Enrich equipment orders with equipment data
-        const enrichedEquipmentOrders = equipmentOrders.map(order => {
-            const equipment = allEquipment.find(eq => eq.id === order.equipmentId);
-            return {
-                ...order,
-                equipment: equipment
-            };
-        });
+            // Separate bookings: my bookings vs bookings for my equipment
+            const myBookings = equipmentBookings.filter(booking =>
+                booking.farmer?.id === currentUser.id || booking.farmerId === currentUser.id
+            );
 
-        const myEquipmentIds = allEquipment
-            .filter((eq) => eq.owner?.id === currentUserId)
-            .map((eq) => eq.id);
+            const bookingsForMyEquipmentFiltered = bookingsForMyEquipment.filter(booking =>
+                myEquipmentIds.includes(booking.equipment?.id || booking.equipmentId)
+            );
 
-        // Separate orders
-        const ordersFromMe = enrichedEquipmentOrders.filter((order) =>
-            myEquipmentIds.includes(order.equipmentId)
-        );
-
-        const myOrders = enrichedEquipmentOrders.filter((order) => {
-            return order.customerId === currentUserId ||
-                order.customerName === 'Current User' ||
-                order.customerName === 'Test User';
-        });
-
-        setAllOrders({
-            marketplace: marketplaceOrders,
-            equipment: enrichedEquipmentOrders,
-            fromMe: ordersFromMe,
-            myOrders: myOrders
-        });
+            setAllOrders({
+                marketplace: marketplaceOrders || [],
+                equipment: [...equipmentBookings, ...bookingsForMyEquipment] || [],
+                fromMe: bookingsForMyEquipmentFiltered || [],
+                myOrders: [...marketplaceOrders, ...myBookings] || []
+            });
+        } catch (error) {
+            console.error("Error loading orders:", error);
+            setAllOrders({
+                marketplace: [],
+                equipment: [],
+                fromMe: [],
+                myOrders: []
+            });
+        } finally {
+            setLoading(false);
+        }
     };
 
     const getFilteredOrders = () => {
@@ -260,7 +271,11 @@ const AllOrders = () => {
                     </div>
 
                     {/* Orders List */}
-                    {filteredOrders.length > 0 ? (
+                    {loading ? (
+                        <div className="text-center py-12 bg-gray-50 rounded-xl">
+                            <p className="text-gray-600 text-lg">Loading orders...</p>
+                        </div>
+                    ) : filteredOrders.length > 0 ? (
                         <div className="space-y-4">
                             {filteredOrders.map((order) => (
                                 <div key={order.id} className="relative">

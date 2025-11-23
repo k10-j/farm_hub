@@ -2,9 +2,12 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import EquipmentForm from '../components/EquipmentForm';
+import { equipmentAPI } from '../../../utils/api';
+import { transformEquipmentData } from '../../../utils/dataTransformers';
 
 const AddEquipment = () => {
     const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
 
     const handleBack = (e) => {
         e.preventDefault();
@@ -13,26 +16,27 @@ const AddEquipment = () => {
         navigate('/dashboard/equipment/share', { replace: false });
     };
 
-    const handleSubmit = (formData) => {
-        const newEquipment = {
-            id: `eq-${Date.now()}`,
-            ...formData,
-            availability: 'AVAILABLE',
-            owner: {
-                id: 'current-user-id', // In real app, get from auth context
-                name: 'Current User',
-                email: 'user@example.com',
-                phone: '1234567890'
-            },
-            createdAt: new Date().toISOString()
-        };
+    const handleSubmit = async (formData) => {
+        try {
+            setLoading(true);
 
-        const existingEquipment = JSON.parse(localStorage.getItem('equipment') || '[]');
-        existingEquipment.push(newEquipment);
-        localStorage.setItem('equipment', JSON.stringify(existingEquipment));
+            // Transform frontend data to backend format
+            const backendData = transformEquipmentData({
+                ...formData,
+                availability: 'AVAILABLE', // Default to available
+            });
 
-        alert('Equipment added successfully!');
-        navigate('/dashboard/equipment/share');
+            console.log('Sending equipment data:', backendData);
+            const created = await equipmentAPI.create(backendData);
+
+            alert('Equipment added successfully!');
+            navigate('/dashboard/equipment/share');
+        } catch (error) {
+            console.error('Error adding equipment:', error);
+            alert('Failed to add equipment: ' + (error.message || 'Unknown error'));
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (

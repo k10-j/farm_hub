@@ -1,21 +1,36 @@
 import React, { useState, useEffect } from 'react';
 import EquipmentCard from '../components/EquipmentCard';
+import { equipmentAPI } from '../../../utils/api';
 
 const BookEquipment = () => {
     const [equipment, setEquipment] = useState([]);
     const [filteredEquipment, setFilteredEquipment] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [typeFilter, setTypeFilter] = useState('All');
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Load available equipment from localStorage or API
-        const storedEquipment = JSON.parse(localStorage.getItem('equipment') || '[]');
-        const availableEquipment = storedEquipment.filter(
-            (eq) => eq.availability === 'AVAILABLE' && eq.availableSlots?.some(slot => !slot.booked)
-        );
-        setEquipment(availableEquipment);
-        setFilteredEquipment(availableEquipment);
+        loadEquipment();
     }, []);
+
+    const loadEquipment = async () => {
+        try {
+            setLoading(true);
+            const data = await equipmentAPI.getAll();
+            // Filter for available equipment
+            const availableEquipment = data.filter(
+                (eq) => eq.availability === 'AVAILABLE' || eq.availabilityStatus === 'AVAILABLE'
+            );
+            setEquipment(availableEquipment);
+            setFilteredEquipment(availableEquipment);
+        } catch (error) {
+            console.error("Error loading equipment:", error);
+            setEquipment([]);
+            setFilteredEquipment([]);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
         let filtered = equipment;
@@ -60,7 +75,11 @@ const BookEquipment = () => {
                 </select>
             </div>
 
-            {filteredEquipment.length > 0 ? (
+            {loading ? (
+                <div className="text-center py-12 bg-gray-50 rounded-xl">
+                    <p className="text-gray-600 text-lg">Loading equipment...</p>
+                </div>
+            ) : filteredEquipment.length > 0 ? (
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {filteredEquipment.map((item) => (
                         <EquipmentCard key={item.id} equipment={item} />

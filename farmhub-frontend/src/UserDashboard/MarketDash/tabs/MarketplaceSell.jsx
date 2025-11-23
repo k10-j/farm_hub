@@ -1,60 +1,82 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { PlusCircle } from "lucide-react";
 import SellerProductCard from "../../../UserDashboard/DashComponents/sellplace/SellerProductCard";
 import AddProductForm from "../../DashComponents/sellplace/AddProductForm";
 import EditProductModal from "../../MarketDash/Editproduce";
+import { produceAPI } from "../../../utils/api";
+import { transformProduceData } from "../../../utils/dataTransformers";
 
 const MarketplaceSell = () => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
-  const [myProducts, setMyProducts] = useState([
-    { 
-      id: 1, 
-      name: "Carrots", 
-      price: 900, 
-      category: "Vegetables", 
-      stock: 50, 
-      unit: "kg",
-      image: "https://i.imgur.com/IKFPf5F.png",
-      seller: "Green Farm",
-      location: "Kigali",
-      description: "Fresh organic carrots harvested daily",
-      inStock: true,
-      isNew: false,
-      rating: 4.5,
-      reviews: 12,
-      sold: 45,
-      discount: 0,
-      originalPrice: 900
-    },
-    { 
-      id: 2, 
-      name: "Irish Potatoes", 
-      price: 5500, 
-      category: "Vegetables", 
-      stock: 30, 
-      unit: "bag",
-      image: "https://i.imgur.com/4CIq9Vy.png",
-      seller: "Green Farm",
-      location: "Kigali",
-      description: "Quality Irish potatoes, perfect for cooking",
-      inStock: true,
-      isNew: false,
-      rating: 4.3,
-      reviews: 8,
-      sold: 23,
-      discount: 0,
-      originalPrice: 5500
-    }
-  ]);
+  const [myProducts, setMyProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleAddProduct = (newProduct) => {
-    const productWithId = {
-      ...newProduct,
-      id: Date.now(),
-    };
-    setMyProducts([productWithId, ...myProducts]);
-    setShowAddForm(false);
+  useEffect(() => {
+    loadMyProducts();
+  }, []);
+
+  const loadMyProducts = async () => {
+    try {
+      setLoading(true);
+      // Get current user from localStorage
+      const userStr = localStorage.getItem("user");
+      const currentUser = userStr ? JSON.parse(userStr) : null;
+
+      if (!currentUser || !currentUser.id) {
+        console.error("User not found");
+        setMyProducts([]);
+        return;
+      }
+
+      // Fetch all produce and filter by current user
+      // NOTE: Backend doesn't have /api/produce/my-produce endpoint
+      // This is a missing endpoint - we filter on frontend
+      const allProduce = await produceAPI.getAll();
+      const userProduce = allProduce.filter(p =>
+        p.farmer?.id === currentUser.id || p.farmerId === currentUser.id
+      );
+      setMyProducts(userProduce);
+    } catch (error) {
+      console.error("Error loading my products:", error);
+      setMyProducts([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddProduct = async (newProduct) => {
+    try {
+      // Validate required fields
+      if (!newProduct.name || !newProduct.name.trim()) {
+        alert("Product name is required");
+        return;
+      }
+
+      const quantity = parseFloat(newProduct.stock || newProduct.quantity || 0);
+      if (isNaN(quantity) || quantity <= 0) {
+        alert("Valid stock/quantity is required");
+        return;
+      }
+
+      const pricePerUnit = parseFloat(newProduct.price || newProduct.pricePerUnit || 0);
+      if (isNaN(pricePerUnit) || pricePerUnit <= 0) {
+        alert("Valid price is required");
+        return;
+      }
+
+      // Transform frontend form data to match backend DTO
+      const backendData = transformProduceData(newProduct);
+
+      console.log("Sending product data:", backendData);
+      const created = await produceAPI.create(backendData);
+      setMyProducts([created, ...myProducts]);
+      setShowAddForm(false);
+    } catch (error) {
+      console.error("Error adding product:", error);
+      const errorMessage = error.message || error.response?.data?.message || "Unknown error occurred";
+      alert("Failed to add product: " + errorMessage);
+    }
   };
 
   const handleEditProduct = (productId) => {
@@ -64,16 +86,37 @@ const MarketplaceSell = () => {
     }
   };
 
-  const handleSaveEdit = (updatedProduct) => {
-    setMyProducts(myProducts.map(p => 
-      p.id === updatedProduct.id ? updatedProduct : p
-    ));
-    setEditingProduct(null);
+  const handleSaveEdit = async (updatedProduct) => {
+    try {
+      // Transform frontend form data to match backend update format
+      const updateData = {
+        name: updatedProduct.name,
+        quantity: parseFloat(updatedProduct.stock || updatedProduct.quantity || 0),
+        // Backend update only supports name and quantity currently
+        // Add other fields if backend supports them
+      };
+
+      console.log("Updating product with data:", updateData);
+      const updated = await produceAPI.update(updatedProduct.id, updateData);
+      setMyProducts(myProducts.map(p =>
+        p.id === updated.id ? updated : p
+      ));
+      setEditingProduct(null);
+    } catch (error) {
+      console.error("Error updating product:", error);
+      alert("Failed to update product: " + (error.message || "Unknown error"));
+    }
   };
 
-  const handleDeleteProduct = (productId) => {
+  const handleDeleteProduct = async (productId) => {
     if (window.confirm("Are you sure you want to delete this product?")) {
-      setMyProducts(myProducts.filter(p => p.id !== productId));
+      try {
+        await produceAPI.delete(productId);
+        setMyProducts(myProducts.filter(p => p.id !== productId));
+      } catch (error) {
+        console.error("Error deleting product:", error);
+        alert("Failed to delete product: " + error.message);
+      }
     }
   };
 
@@ -116,7 +159,11 @@ const MarketplaceSell = () => {
       </div>
 
       {/* Products Grid */}
-      {myProducts.length === 0 ? (
+      {loading ? (
+        <div className="text-center py-16 bg-white rounded-lg shadow-md">
+          <p className="text-gray-500">Loading your products...</p>
+        </div>
+      ) : myProducts.length === 0 ? (
         <div className="text-center py-16 bg-white rounded-lg shadow-md">
           <PlusCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-gray-700 mb-2">No Products Yet</h3>

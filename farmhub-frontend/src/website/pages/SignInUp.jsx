@@ -27,59 +27,65 @@ export function SignInUp() {
     });
     const navigate = useNavigate();
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+    const handleSubmit = async (e) => {
+        e.preventDefault();
 
-  try {
-    let url = "";
-    let payload = {};
+        try {
+            let url = "";
+            let payload = {};
 
-    if (isSignUp) {
-      // SIGN UP PAYLOAD
-      payload = {
-        full_name: formData.name,
-        email: formData.email,
-        password: formData.password,
-        phone_number: formData.phone,
-        location: formData.location,
-      };
-      url = "https://farm-hub.onrender.com/api/auth/register";
-    } else {
-      // SIGN IN PAYLOAD
-      payload = {
-        email: formData.email,
-        password: formData.password,
-      };
-      url = "https://farm-hub.onrender.com/api/auth/login";
-    }
+            if (isSignUp) {
+                // SIGN UP PAYLOAD
+                payload = {
+                    full_name: formData.name,
+                    email: formData.email,
+                    password: formData.password,
+                    phone_number: formData.phone,
+                    location: formData.location,
+                };
+                url = "https://farm-hub.onrender.com/api/auth/register";
+            } else {
+                // SIGN IN PAYLOAD
+                payload = {
+                    email: formData.email,
+                    password: formData.password,
+                };
+                url = "https://farm-hub.onrender.com/api/auth/login";
+            }
 
-    console.log("Sending payload:", payload);
+            console.log("Sending payload:", payload);
 
-    const res = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-      credentials: "include"
-    });
+            const res = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(payload),
+                credentials: "include"
+            });
 
-    const data = await res.json();
+            const data = await res.json();
 
-    if (!res.ok) {
-      console.error("Error response:", data);
-      throw new Error(data.message || "Request failed");
-    }
+            if (!res.ok) {
+                console.error("Error response:", data);
+                throw new Error(data.message || "Request failed");
+            }
 
-    console.log(isSignUp ? "Registration successful:" : "Login successful:", data);
+            console.log(isSignUp ? "Registration successful:" : "Login successful:", data);
 
-    // Example: navigate to dashboard on success
-    navigate("/dashboard");
+            // Store user data in localStorage for auth context
+            if (data && data.id) {
+                localStorage.setItem("user", JSON.stringify(data));
+                // Auth context will pick this up
+            }
 
-  } catch (error) {
-    console.error("Error:", error.message);
-  }
-};
+            // Example: navigate to dashboard on success
+            navigate("/dashboard");
+
+        } catch (error) {
+            console.error("Error:", error.message);
+        }
+    };
 
 
     const handleChange = (e) => {
@@ -87,7 +93,7 @@ const handleSubmit = async (e) => {
             ...formData,
             [e.target.name]: e.target.value
         });
-       
+
     };
     return <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-50 md:pt-56 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl w-full grid lg:grid-cols-2 gap-8 items-center">

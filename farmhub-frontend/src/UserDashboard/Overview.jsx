@@ -5,6 +5,7 @@ import QuickActionButton from "./DashComponents/QuickActionButton";
 import ActivityItem from "./DashComponents/ActivityItem";
 import WeatherWidget from "./DashComponents/WeatherWidget";
 import AlertCard from "./DashComponents/AlertCard";
+import { ordersAPI, bookingsAPI, equipmentAPI, produceAPI } from "../utils/api";
 import {
   ShoppingBag,
   Wrench,
@@ -31,71 +32,101 @@ const Overview = () => {
   });
 
   const [recentActivity, setRecentActivity] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadDashboardData();
   }, []);
 
-  const loadDashboardData = () => {
-    // Load marketplace orders
-    const marketplaceOrders = JSON.parse(localStorage.getItem('marketplaceOrders') || '[]');
+  const loadDashboardData = async () => {
+    try {
+      setLoading(true);
 
-    // Load equipment orders
-    const equipmentOrders = JSON.parse(localStorage.getItem('equipmentOrders') || '[]');
+      // Fetch all data from API in parallel
+      const [marketplaceOrders, equipmentBookings, myEquipment, allProduce] = await Promise.all([
+        ordersAPI.getMyOrders().catch(() => []),
+        bookingsAPI.getMyBookings().catch(() => []),
+        equipmentAPI.getMyEquipment().catch(() => []),
+        produceAPI.getAll().catch(() => [])
+      ]);
 
-    // Load equipment
-    const allEquipment = JSON.parse(localStorage.getItem('equipment') || '[]');
+      // Calculate stats
+      const totalOrders = marketplaceOrders.length + equipmentBookings.length;
+      const equipmentRentals = equipmentBookings.length;
+      const pendingOrders = [
+        ...marketplaceOrders.filter(o => o.status === 'PENDING'),
+        ...equipmentBookings.filter(b => b.status === 'PENDING')
+      ].length;
 
-    // Calculate stats
-    const totalOrders = marketplaceOrders.length + equipmentOrders.length;
-    const equipmentRentals = equipmentOrders.length;
-    const pendingOrders = [...marketplaceOrders, ...equipmentOrders].filter(
-      o => o.status === 'PENDING'
-    ).length;
+      // Calculate revenue (from completed orders)
+      const completedOrders = [
+        ...marketplaceOrders.filter(o =>
+          o.status === 'COMPLETED' || o.status === 'DELIVERED' || o.status === 'CONFIRMED'
+        ),
+        ...equipmentBookings.filter(b =>
+          b.status === 'COMPLETED' || b.status === 'CONFIRMED'
+        )
+      ];
+      const totalRevenue = completedOrders.reduce((sum, order) => {
+        return sum + (order.totalAmount || order.price || order.totalPrice || 0);
+      }, 0);
 
-    // Calculate revenue (from completed orders)
-    const completedOrders = [...marketplaceOrders, ...equipmentOrders].filter(
-      o => o.status === 'COMPLETED' || o.status === 'DELIVERED' || o.status === 'CONFIRMED'
-    );
-    const totalRevenue = completedOrders.reduce((sum, order) => {
-      return sum + (order.totalAmount || order.price || 0);
-    }, 0);
+      // Count active listings (equipment and produce)
+      const activeEquipment = myEquipment.filter(eq => eq.availability === 'AVAILABLE').length;
+      const activeProduce = allProduce.filter(p => p.quantity > 0).length;
+      const activeListings = activeEquipment + activeProduce;
 
-    const activeListings = allEquipment.filter(eq => eq.availability === 'AVAILABLE').length;
+      setStats({
+        totalOrders,
+        equipmentRentals,
+        diagnosisResults: 0, // Can be updated if you track this
+        totalRevenue,
+        activeListings,
+        pendingOrders
+      });
 
-    setStats({
-      totalOrders,
-      equipmentRentals,
-      diagnosisResults: 3, // Mock data
-      totalRevenue,
-      activeListings,
-      pendingOrders
-    });
+      // Create recent activity from orders and bookings
+      const activities = [
+        ...equipmentBookings.slice(0, 3).map(booking => ({
+          text: booking.equipment?.name ?
+            `Equipment "${booking.equipment.name}" was booked` :
+            'New equipment booking received',
+          time: formatTimeAgo(booking.createdAt || booking.bookingDate),
+          type: 'equipment'
+        })),
+        ...marketplaceOrders.slice(0, 2).map(order => ({
+          text: order.produce?.name || order.productName ?
+            `Order for "${order.produce?.name || order.productName}" received` :
+            'New marketplace order',
+          time: formatTimeAgo(order.createdAt || order.orderDate),
+          type: 'marketplace'
+        }))
+      ].sort((a, b) => {
+        const dateA = new Date(a.time);
+        const dateB = new Date(b.time);
+        return dateB - dateA;
+      }).slice(0, 5);
 
-    // Create recent activity from orders and equipment
-    const activities = [
-      ...equipmentOrders.slice(0, 3).map(order => ({
-        text: order.equipmentName ?
-          `Equipment "${order.equipmentName}" was booked` :
-          'New equipment booking received',
-        time: formatTimeAgo(order.createdAt),
-        type: 'equipment'
-      })),
-      ...marketplaceOrders.slice(0, 2).map(order => ({
-        text: order.product ?
-          `Order for "${order.product}" received` :
-          'New marketplace order',
-        time: formatTimeAgo(order.createdAt || order.date),
-        type: 'marketplace'
-      }))
-    ].sort((a, b) => new Date(b.time) - new Date(a.time)).slice(0, 5);
-
-    setRecentActivity(activities.length > 0 ? activities : [
-      { text: "You posted 10kg of tomatoes for sale.", time: "2 hours ago", type: "marketplace" },
-      { text: "Your tractor was rented by Alice.", time: "6 hours ago", type: "equipment" },
-      { text: "Diagnosis result: Leaf spot detected in beans.", time: "1 day ago", type: "diagnosis" },
-      { text: "You purchased fertilizer from the marketplace.", time: "3 days ago", type: "marketplace" }
-    ]);
+      setRecentActivity(activities.length > 0 ? activities : [
+        { text: "No recent activity", time: "Just now", type: "info" }
+      ]);
+    } catch (error) {
+      console.error("Error loading dashboard data:", error);
+      // Set default values on error
+      setStats({
+        totalOrders: 0,
+        equipmentRentals: 0,
+        diagnosisResults: 0,
+        totalRevenue: 0,
+        activeListings: 0,
+        pendingOrders: 0
+      });
+      setRecentActivity([
+        { text: "Unable to load activity", time: "Just now", type: "error" }
+      ]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const formatTimeAgo = (dateString) => {

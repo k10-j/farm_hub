@@ -2,19 +2,33 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import EquipmentForm from '../components/EquipmentForm';
+import { equipmentAPI } from '../../../utils/api';
+import { transformEquipmentUpdateData } from '../../../utils/dataTransformers';
 
 const EditEquipment = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [equipment, setEquipment] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
 
     useEffect(() => {
-        const allEquipment = JSON.parse(localStorage.getItem('equipment') || '[]');
-        const found = allEquipment.find((eq) => eq.id === id);
-        setEquipment(found);
-        setLoading(false);
+        loadEquipment();
     }, [id]);
+
+    const loadEquipment = async () => {
+        try {
+            setLoading(true);
+            const data = await equipmentAPI.getById(id);
+            setEquipment(data);
+        } catch (error) {
+            console.error('Error loading equipment:', error);
+            alert('Failed to load equipment: ' + (error.message || 'Unknown error'));
+            navigate('/dashboard/equipment/share');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleBack = (e) => {
         e.preventDefault();
@@ -23,26 +37,32 @@ const EditEquipment = () => {
         navigate('/dashboard/equipment/share', { replace: false });
     };
 
-    const handleSubmit = (formData) => {
-        const allEquipment = JSON.parse(localStorage.getItem('equipment') || '[]');
-        const index = allEquipment.findIndex((eq) => eq.id === id);
+    const handleSubmit = async (formData) => {
+        try {
+            setSaving(true);
 
-        if (index !== -1) {
-            allEquipment[index] = {
-                ...allEquipment[index],
-                ...formData,
-                updatedAt: new Date().toISOString()
-            };
-            localStorage.setItem('equipment', JSON.stringify(allEquipment));
+            // Transform frontend data to backend format
+            const updateData = transformEquipmentUpdateData(formData);
+
+            console.log('Updating equipment with data:', updateData);
+            await equipmentAPI.update(id, updateData);
+
             alert('Equipment updated successfully!');
             navigate('/dashboard/equipment/share');
+        } catch (error) {
+            console.error('Error updating equipment:', error);
+            alert('Failed to update equipment: ' + (error.message || 'Unknown error'));
+        } finally {
+            setSaving(false);
         }
     };
 
-    if (loading) {
+    if (loading || saving) {
         return (
             <div className="px-6 py-6 max-w-4xl mx-auto">
-                <div className="text-center py-12">Loading...</div>
+                <div className="text-center py-12">
+                    {loading ? 'Loading equipment...' : 'Saving changes...'}
+                </div>
             </div>
         );
     }
