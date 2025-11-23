@@ -58,13 +58,20 @@ export function PestDiagnosis() {
     setError(null);
     setSelectedImage(null);
 
+    // This is a placeholder for your manual logic.
+    // We'll mock a "sick" response for consistency.
     setTimeout(() => {
       setDiagnosisResult({
-        disease: 'Manual Symptom Analysis',
-        confidence: 'N/A',
-        treatment:
-          'Please consult an agronomist with the symptoms you have selected for the best advice.',
-        causes: 'Based on user-selected symptoms.',
+        plantDetected: true,
+        healthy: false,
+        healthProbability: 0.95,
+        possibleDiseases: [
+          {
+            id: 'manual',
+            name: 'Manual Symptom Analysis',
+            probability: 0.95,
+          },
+        ],
       });
       setShowResults(true);
       setLoading(false);
@@ -199,7 +206,7 @@ export function PestDiagnosis() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.4 }}
           >
-            <div className="bg-white rounded-xl shadow-lg p-8 h-full flex items-center justify-center">
+            <div className="bg-white rounded-xl shadow-lg p-8 h-full flex items-center justify-center min-h-[500px]">
               {loading ? (
                 <div className="text-center">
                   <Loader2Icon className="w-12 h-12 text-green-600 mx-auto mb-4 animate-spin" />
@@ -217,46 +224,95 @@ export function PestDiagnosis() {
                     Try Again
                   </button>
                 </div>
-              ) : showResults && diagnosisResult ? (
-                <div className="text-left w-full">
-                  <h2 className="text-3xl font-bold text-gray-900 mb-4">Diagnosis Results</h2>
-
-                  <div className="mb-6">
-                    <h3 className="text-lg font-semibold text-gray-700">Detected Disease</h3>
-                    <p className="text-2xl font-bold text-green-700">
-                      {diagnosisResult.disease || 'Unknown'}
-                    </p>
-                  </div>
-
-                  <div className="mb-6">
-                    <h3 className="text-lg font-semibold text-gray-700">Confidence</h3>
-                    <p className="text-xl text-gray-900">
-                      {diagnosisResult.confidence || 'N/A'}
-                    </p>
-                  </div>
-
-                  <div className="mb-6">
-                    <h3 className="text-lg font-semibold text-gray-700">Possible Causes</h3>
-                    <p className="text-gray-600">
-                      {diagnosisResult.causes || 'No information available.'}
-                    </p>
-                  </div>
-
-                  <div className="mb-6">
-                    <h3 className="text-lg font-semibold text-gray-700">Recommended Treatment</h3>
-                    <p className="text-gray-600">
-                      {diagnosisResult.treatment || 'No treatment information available.'}
-                    </p>
-                  </div>
-
+              ) : 
+              
+              // --- START OF FIXED CODE ---
+              
+              showResults && diagnosisResult ? (
+                <div className="text-left w-full relative">
                   <button
                     onClick={resetState}
-                    className="mt-4 w-full py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors"
+                    className="absolute -top-4 -right-4 text-gray-400 hover:text-gray-600 bg-white rounded-full p-1 shadow"
+                  >
+                    <XIcon className="w-6 h-6" />
+                  </button>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-6">Diagnosis Results</h2>
+
+                  {/* Check 1: Was a plant even detected? */}
+                  {!diagnosisResult.plantDetected ? (
+                    <div className="text-center">
+                      <AlertCircleIcon className="w-12 h-12 mx-auto mb-4 text-orange-500" />
+                      <h3 className="text-xl font-semibold mb-2">Analysis Complete</h3>
+                      <p>The image submitted does not appear to be a plant.</p>
+                    </div>
+                  ) : 
+                  
+                  /* Check 2: Was the plant healthy? */
+                  diagnosisResult.healthy ? (
+                    <div className="text-center">
+                      <div className="bg-green-100 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <LeafIcon className="w-12 h-12 text-green-600" />
+                      </div>
+                      <h3 className="text-2xl font-semibold text-green-700 mb-2">
+                        Plant is Healthy!
+                      </h3>
+                      <p className="text-gray-600">
+                        Our analysis indicates your plant is healthy.
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        (Confidence: {(diagnosisResult.healthProbability * 100).toFixed(0)}%)
+                      </p>
+                    </div>
+                  ) : 
+                  
+                  /* Check 3: The plant is sick, show the diseases */
+                  (
+                    <div>
+                      <div className="mb-6">
+                        <h3 className="text-lg font-semibold text-gray-700">Top Match</h3>
+                        {/* Use the first disease in the list as the main result */}
+                        <p className="text-2xl font-bold text-red-700">
+                          {diagnosisResult.possibleDiseases[0]?.name || 'Unknown Disease'}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          Confidence: {(diagnosisResult.possibleDiseases[0]?.probability * 100).toFixed(0)}%
+                        </p>
+                      </div>
+
+                      {/* Show other possibilities if they exist */}
+                      {diagnosisResult.possibleDiseases.length > 1 && (
+                        <div className="mb-6">
+                          <h3 className="text-lg font-semibold text-gray-700">Other Possibilities</h3>
+                          <ul className="list-disc list-inside text-gray-600 space-y-1">
+                            {diagnosisResult.possibleDiseases.slice(1).map((disease) => (
+                              <li key={disease.id}>
+                                {disease.name} ({(disease.probability * 100).toFixed(0)}% confidence)
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {/* Note: The API doesn't provide causes/treatment, so we guide the user */}
+                      <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <h3 className="text-lg font-semibold text-yellow-800">Next Steps</h3>
+                        <p className="text-yellow-700">
+                          Please show this diagnosis to a local agro-vet to get specific treatment recommendations.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <button
+                    onClick={resetState}
+                    className="mt-6 w-full py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors"
                   >
                     Analyze Another
                   </button>
                 </div>
               ) : (
+                // --- END OF FIXED CODE ---
+                
                 <div className="text-center">
                   <div className="bg-green-100 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
                     <LeafIcon className="w-12 h-12 text-green-600" />
