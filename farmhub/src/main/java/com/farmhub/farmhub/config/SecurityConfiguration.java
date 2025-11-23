@@ -69,7 +69,7 @@ public CorsConfigurationSource corsConfigurationSource() {
         "https://farm-hub-iota.vercel.app",
         // "https://farm-hub3-odyf.vercel.app",
         // "https://farm-hub3-rt15.vercel.app",
-        "https://farm-hub4.vercel.app",
+        "https://farm-hub-brown.vercel.app",
         "http://localhost:5173",
         "http://localhost:5174"
         // "https://farmhub-9qun.vercel.app",
