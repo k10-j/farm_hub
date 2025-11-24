@@ -3,11 +3,15 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
-import { LeafIcon, MailIcon, LockIcon, UserIcon, PhoneIcon, MapPinIcon, EyeIcon, EyeOffIcon } from 'lucide-react';
+import { LeafIcon, MailIcon, LockIcon, UserIcon, PhoneIcon, MapPinIcon, EyeIcon, EyeOffIcon, CheckCircle, XCircle, Loader } from 'lucide-react';
 export function SignInUp() {
     const location = useLocation();
     const initialMode = location.state?.mode || 'signin';
     const [isSignUp, setIsSignUp] = useState(false);
+
+    const [showPassword, setShowPassword] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [toast, setToast] = useState(null);
 
     useEffect(() => {
         if (location.state?.mode === 'signup') {
@@ -16,7 +20,13 @@ export function SignInUp() {
             setIsSignUp(false);
         }
     }, [location.state]);
-    const [showPassword, setShowPassword] = useState(false);
+
+    useEffect(() => {
+        if (toast && toast.type !== 'loading') {
+            const timer = setTimeout(() => setToast(null), 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [toast]);
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -27,15 +37,21 @@ export function SignInUp() {
     });
     const navigate = useNavigate();
 
-const handleSubmit = async (e) => {
+    const showToast = (type, message) => {
+        setToast({ type, message });
+        setTimeout(() => setToast(null), 3000);
+    };
+
+    const handleSubmit = async (e) => {
   e.preventDefault();
+  setIsLoading(true);
+  showToast('loading', isSignUp ? 'Creating account...' : 'Signing in...');
 
   try {
     let url = "";
     let payload = {};
 
     if (isSignUp) {
-      // SIGN UP PAYLOAD
       payload = {
         full_name: formData.name,
         email: formData.email,
@@ -45,15 +61,12 @@ const handleSubmit = async (e) => {
       };
       url = "https://farm-hub.onrender.com/api/auth/register";
     } else {
-      // SIGN IN PAYLOAD
       payload = {
         email: formData.email,
         password: formData.password,
       };
       url = "https://farm-hub.onrender.com/api/auth/login";
     }
-
-    console.log("Sending payload:", payload);
 
     const res = await fetch(url, {
       method: "POST",
@@ -67,17 +80,24 @@ const handleSubmit = async (e) => {
     const data = await res.json();
 
     if (!res.ok) {
-      console.error("Error response:", data);
       throw new Error(data.message || "Request failed");
     }
 
-    console.log(isSignUp ? "Registration successful:" : "Login successful:", data);
-
-    // Example: navigate to dashboard on success
-    navigate("/dashboard");
+    if (isSignUp) {
+      showToast('success', 'Registration successful! Please login to continue.');
+      setIsSignUp(false);
+      setFormData({ name: '', email: '', phone: '', location: '', password: '', confirmPassword: '' });
+    } else {
+      localStorage.setItem('user', JSON.stringify(data));
+      localStorage.setItem('token', 'authenticated');
+      showToast('success', 'Login successful! Redirecting...');
+      setTimeout(() => navigate("/dashboard"), 1000);
+    }
 
   } catch (error) {
-    console.error("Error:", error.message);
+    showToast('error', error.message || 'Something went wrong. Please try again.');
+  } finally {
+    setIsLoading(false);
   }
 };
 
@@ -244,7 +264,12 @@ const handleSubmit = async (e) => {
                                 Forgot password?
                             </a>
                         </div>}
-                        <button type="submit" className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors shadow-lg hover:shadow-xl">
+                        <button 
+                            type="submit" 
+                            disabled={isLoading}
+                            className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        >
+                            {isLoading && <Loader className="w-4 h-4 animate-spin" />}
                             {isSignUp ? 'Create Account' : 'Sign In'}
                         </button>
                         {isSignUp && <p className="text-xs text-gray-500 text-center">
@@ -261,6 +286,20 @@ const handleSubmit = async (e) => {
                 </div>
             </motion.div>
         </div>
+        
+        {/* Toast Notification */}
+        {toast && (
+            <div className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg flex items-center gap-3 ${
+                toast.type === 'success' ? 'bg-green-500 text-white' :
+                toast.type === 'error' ? 'bg-red-500 text-white' :
+                'bg-blue-500 text-white'
+            }`}>
+                {toast.type === 'success' && <CheckCircle className="w-5 h-5" />}
+                {toast.type === 'error' && <XCircle className="w-5 h-5" />}
+                {toast.type === 'loading' && <Loader className="w-5 h-5 animate-spin" />}
+                <span>{toast.message}</span>
+            </div>
+        )}
     </div>;
 };
 

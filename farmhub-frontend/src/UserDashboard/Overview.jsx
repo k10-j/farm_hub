@@ -5,6 +5,7 @@ import QuickActionButton from "./DashComponents/QuickActionButton";
 import ActivityItem from "./DashComponents/ActivityItem";
 import WeatherWidget from "./DashComponents/WeatherWidget";
 import AlertCard from "./DashComponents/AlertCard";
+import AuthUtils from "../utils/authUtils";
 import {
   ShoppingBag,
   Wrench,
@@ -31,10 +32,17 @@ const Overview = () => {
   });
 
   const [recentActivity, setRecentActivity] = useState([]);
+  const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
     loadDashboardData();
+    loadUserData();
   }, []);
+
+  const loadUserData = () => {
+    const user = AuthUtils.getCurrentUser();
+    setCurrentUser(user);
+  };
 
   const loadDashboardData = () => {
     // Load marketplace orders
@@ -116,7 +124,7 @@ const Overview = () => {
       <div className="mb-6 sm:mb-8">
         <div className="bg-gradient-to-r from-green-600 to-green-700 rounded-2xl p-6 sm:p-8 text-white shadow-lg">
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2">
-            👋 Welcome Back, Farmer!
+            👋 Welcome Back, {AuthUtils.getUserDisplayName(currentUser)}!
           </h1>
           <p className="text-green-50 text-sm sm:text-base">
             Here's your farm's activity overview for today

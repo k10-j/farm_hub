@@ -1,9 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import { Leaf, Menu, X, User, ChevronDown } from "lucide-react";
+import AuthUtils from "../utils/authUtils";
 
 const FarmerNavbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+
+  useEffect(() => {
+    const user = AuthUtils.getCurrentUser();
+    setCurrentUser(user);
+  }, []);
 
   const dashboardLinks = [
     { name: "Dashboard", to: "/dashboard" },
@@ -62,7 +69,7 @@ const FarmerNavbar = () => {
                 <User className="w-5 h-5 text-gray-700 group-hover:text-green-700" />
               </div>
               <span className="text-sm font-semibold text-gray-800 flex items-center">
-                My Profile <ChevronDown className="w-3 h-3 ml-1" />
+                {AuthUtils.getUserDisplayName(currentUser)} <ChevronDown className="w-3 h-3 ml-1" />
               </span>
             </NavLink>
 
