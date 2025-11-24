@@ -11,6 +11,8 @@ import PestDiagnosis from "./website/pages/PestDiagnosis";
 import Marketplace from "./website/pages/MarketPlace";
 import ProductPage from "./website/pages/product/[id]";
 import SignInUp from "./website/pages/SignInUp";
+import PaymentPage from "./website/pages/PaymentPage";
+import OrderConfirmationPage from "./website/pages/OrderConfirmationPage";
 
 
 // Dashboard pages
@@ -46,6 +48,8 @@ function App() {
             <Route path="/marketplace" element={<Marketplace />} />
             <Route path="/pest-diagnosis" element={<PestDiagnosis />} />
             <Route path="/product/:id" element={<ProductPage />} />
+            <Route path="/payment" element={<PaymentPage />} />
+            <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
             <Route path="/signinup" element={<SignInUp />} />
           </Route>
 

@@ -4,6 +4,8 @@ import products from "../../Components/marketplace/ProductData";
 import { Star, ShoppingCart } from "lucide-react";
 import { useCart } from "../../hooks/cartHook";
 import CheckoutPage from "../../../UserDashboard/MarketDash/CheckoutPage";
+import PaymentPage from "../PaymentPage";
+import OrderConfirmationPage from "../OrderConfirmationPage";
 
 const ProductPage = () => {
   const { id } = useParams();
@@ -14,7 +16,8 @@ const ProductPage = () => {
   const [activeTab, setActiveTab] = useState("description");
   const [mainImage, setMainImage] = useState(product?.image);
   const [quantity, setQuantity] = useState(1);
-  const [showCheckout, setShowCheckout] = useState(false);
+  const [currentStep, setCurrentStep] = useState('product'); // 'product', 'checkout', 'payment', 'confirmation'
+  const [orderData, setOrderData] = useState(null);
 
   if (!product) {
     return (
@@ -24,12 +27,31 @@ const ProductPage = () => {
     );
   }
 
-  if (showCheckout) {
+  if (currentStep === 'checkout') {
     return (
       <CheckoutPage 
         product={{ ...product, quantity }}
-        onBack={handleBackToProduct}
+        onBack={() => setCurrentStep('product')}
         onProceedToPayment={handleProceedToPayment}
+      />
+    );
+  }
+
+  if (currentStep === 'payment') {
+    return (
+      <PaymentPage 
+        orderData={orderData}
+        onBack={() => setCurrentStep('checkout')}
+        onPaymentComplete={handlePaymentComplete}
+      />
+    );
+  }
+
+  if (currentStep === 'confirmation') {
+    return (
+      <OrderConfirmationPage 
+        orderData={orderData}
+        onContinueShopping={() => navigate('/marketplace')}
       />
     );
   }
@@ -59,17 +81,41 @@ const ProductPage = () => {
 
   const buyNow = () => {
     if (!product.inStock) return;
-    setShowCheckout(true);
+    setCurrentStep('checkout');
   };
 
   const handleProceedToPayment = (shippingInfo) => {
-    // Handle payment processing here
-    console.log('Proceeding to payment with:', shippingInfo);
-    alert('Payment processing would start here');
+    const shippingCost = 5000;
+    const tax = (product.price * shippingInfo.quantity) * 0.18;
+    const subtotal = product.price * shippingInfo.quantity;
+    const total = subtotal + shippingCost + tax;
+
+    setOrderData({
+      product,
+      shippingInfo,
+      subtotal,
+      shipping: shippingCost,
+      tax,
+      total
+    });
+    setCurrentStep('payment');
   };
 
-  const handleBackToProduct = () => {
-    setShowCheckout(false);
+  const handlePaymentComplete = (paymentData) => {
+    // Save order to localStorage
+    const orders = JSON.parse(localStorage.getItem('marketplaceOrders') || '[]');
+    const newOrder = {
+      ...paymentData,
+      id: Date.now(),
+      date: new Date().toISOString(),
+      product: product.name,
+      status: 'CONFIRMED'
+    };
+    orders.push(newOrder);
+    localStorage.setItem('marketplaceOrders', JSON.stringify(orders));
+    
+    setOrderData(paymentData);
+    setCurrentStep('confirmation');
   };
 
   const relatedProducts = products
