@@ -1,22 +1,58 @@
 import React, { useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import products from "../../Components/marketplace/ProductData";
 import { Star, ShoppingCart } from "lucide-react";
+import { useCart } from "../../hooks/cartHook";
+import CheckoutPage from "../../../UserDashboard/MarketDash/CheckoutPage";
+import PaymentPage from "../PaymentPage";
+import OrderConfirmationPage from "../OrderConfirmationPage";
 
 const ProductPage = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const product = products.find((p) => p.id === parseInt(id));
+  const { addToCart } = useCart();
 
   const [activeTab, setActiveTab] = useState("description");
   const [mainImage, setMainImage] = useState(product?.image);
   const [quantity, setQuantity] = useState(1);
-  const [cart, setCart] = useState([]);
+  const [currentStep, setCurrentStep] = useState('product'); // 'product', 'checkout', 'payment', 'confirmation'
+  const [orderData, setOrderData] = useState(null);
 
   if (!product) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-100">
         <p className="text-xl text-gray-700">Product not found.</p>
       </div>
+    );
+  }
+
+  if (currentStep === 'checkout') {
+    return (
+      <CheckoutPage 
+        product={{ ...product, quantity }}
+        onBack={() => setCurrentStep('product')}
+        onProceedToPayment={handleProceedToPayment}
+      />
+    );
+  }
+
+  if (currentStep === 'payment') {
+    return (
+      <PaymentPage 
+        orderData={orderData}
+        onBack={() => setCurrentStep('checkout')}
+        onPaymentComplete={handlePaymentComplete}
+      />
+    );
+  }
+
+  if (currentStep === 'confirmation') {
+    return (
+      <OrderConfirmationPage 
+        orderData={orderData}
+        onContinueShopping={() => navigate('/marketplace')}
+      />
     );
   }
 
@@ -37,26 +73,49 @@ const ProductPage = () => {
     );
   };
 
-  const addToCart = () => {
+  const handleAddToCart = () => {
     if (!product.inStock) return;
-    const itemInCart = cart.find((c) => c.id === product.id);
-    if (itemInCart) {
-      setCart(
-        cart.map((c) =>
-          c.id === product.id ? { ...c, quantity: c.quantity + quantity } : c
-        )
-      );
-    } else {
-      setCart([...cart, { ...product, quantity }]);
-    }
-    alert(`${quantity} ${product.name} added to cart!`);
+    const productWithQuantity = { ...product, quantity };
+    addToCart(productWithQuantity);
   };
 
   const buyNow = () => {
     if (!product.inStock) return;
-    addToCart();
-    alert("Proceeding to checkout...");
-    // Here you can redirect to checkout page if implemented
+    setCurrentStep('checkout');
+  };
+
+  const handleProceedToPayment = (shippingInfo) => {
+    const shippingCost = 5000;
+    const tax = (product.price * shippingInfo.quantity) * 0.18;
+    const subtotal = product.price * shippingInfo.quantity;
+    const total = subtotal + shippingCost + tax;
+
+    setOrderData({
+      product,
+      shippingInfo,
+      subtotal,
+      shipping: shippingCost,
+      tax,
+      total
+    });
+    setCurrentStep('payment');
+  };
+
+  const handlePaymentComplete = (paymentData) => {
+    // Save order to localStorage
+    const orders = JSON.parse(localStorage.getItem('marketplaceOrders') || '[]');
+    const newOrder = {
+      ...paymentData,
+      id: Date.now(),
+      date: new Date().toISOString(),
+      product: product.name,
+      status: 'CONFIRMED'
+    };
+    orders.push(newOrder);
+    localStorage.setItem('marketplaceOrders', JSON.stringify(orders));
+    
+    setOrderData(paymentData);
+    setCurrentStep('confirmation');
   };
 
   const relatedProducts = products
@@ -164,7 +223,7 @@ const ProductPage = () => {
                   product.inStock ? "bg-green-600 hover:bg-green-700" : "bg-gray-300 cursor-not-allowed"
                 } transition`}
                 disabled={!product.inStock}
-                onClick={addToCart}
+                onClick={handleAddToCart}
               >
                 <ShoppingCart className="w-5 h-5 inline mr-2" /> Add to Cart
               </button>

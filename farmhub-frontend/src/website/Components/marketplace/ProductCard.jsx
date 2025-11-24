@@ -7,7 +7,25 @@ import { motion } from "framer-motion";
 import { ShoppingCart, Heart, Star, User, MapPin, TrendingUp } from "lucide-react";
 
 const ProductCard = ({ product, animation,onBuyNow }) => {
-  const { addToCart } = useCart(); 
+  const { addToCart } = useCart();
+
+  const handleAddToCart = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const success = addToCart(product);
+    if (success) {
+      // Optional: Show success message
+      console.log('Added to cart:', product.name);
+    }
+  };
+
+  const handleBuyNow = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onBuyNow) {
+      onBuyNow();
+    }
+  }; 
   return (
     <motion.div
       className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 group"
@@ -111,8 +129,8 @@ const ProductCard = ({ product, animation,onBuyNow }) => {
 <div className="flex gap-2 mt-3">
   <button
     disabled={!product.inStock}
-    onClick={addToCart}
-    className={`flex-1 py-2 rounded-lg font-medium text-sm ${
+    onClick={handleAddToCart}
+    className={`flex-1 py-2 rounded-lg font-medium text-sm transition-colors ${
       product.inStock ? "bg-green-600 text-white hover:bg-green-700" : "bg-gray-200 text-gray-400"
     }`}
   >
@@ -121,8 +139,8 @@ const ProductCard = ({ product, animation,onBuyNow }) => {
 
   <button
     disabled={!product.inStock}
-    onClick={onBuyNow}
-    className={`flex-1 py-2 rounded-lg font-medium text-sm ${
+    onClick={handleBuyNow}
+    className={`flex-1 py-2 rounded-lg font-medium text-sm transition-colors ${
       product.inStock ? "bg-amber-600 text-white hover:bg-amber-700" : "bg-gray-200 text-gray-400"
     }`}
   >

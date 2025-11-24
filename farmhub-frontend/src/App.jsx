@@ -11,6 +11,8 @@ import PestDiagnosis from "./website/pages/PestDiagnosis";
 import Marketplace from "./website/pages/MarketPlace";
 import ProductPage from "./website/pages/product/[id]";
 import SignInUp from "./website/pages/SignInUp";
+import PaymentPage from "./website/pages/PaymentPage";
+import OrderConfirmationPage from "./website/pages/OrderConfirmationPage";
 
 
 // Dashboard pages
@@ -29,6 +31,7 @@ import EquipmentPaymentPage from "./UserDashboard/Equipement/pages/EquipmentPaym
 import EquipmentConfirmationPage from "./UserDashboard/Equipement/pages/EquipmentConfirmationPage";
 import AllOrders from "./UserDashboard/Orders/AllOrders";
 import ProfilePage from "./UserDashboard/Profile/ProfilePage";
+import CartPage from "./UserDashboard/Cart/CartPage";
 
 function App() {
   // Demo login available in console: window.demoLogin()
@@ -45,6 +48,8 @@ function App() {
             <Route path="/marketplace" element={<Marketplace />} />
             <Route path="/pest-diagnosis" element={<PestDiagnosis />} />
             <Route path="/product/:id" element={<ProductPage />} />
+            <Route path="/payment" element={<PaymentPage />} />
+            <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
             <Route path="/signinup" element={<SignInUp />} />
           </Route>
 
@@ -66,6 +71,7 @@ function App() {
             <Route path="equipment/confirmation" element={<EquipmentConfirmationPage />} />
             <Route path="orders" element={<AllOrders />} />
             <Route path="profile" element={<ProfilePage />} />
+            <Route path="cart" element={<CartPage />} />
             {/* <Route path="/product/:id" element={<ProductPage />} /> */}
 
             {/* you can add more dashboard pages here */}

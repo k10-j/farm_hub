@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { NavLink } from "react-router-dom";
 import { Link } from 'react-router-dom';
 import { useCart } from "../hooks/cartHook";
+import AuthUtils from "../../utils/authUtils";
+import CartDropdown from "./CartDropdown";
 import { Leaf, ShoppingCart, Menu, X, Search, User, MapPin, ChevronDown } from "lucide-react";
 
 const Navbar = () => {
@@ -9,7 +11,27 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [lang, setLang] = useState("EN");
   const [searchFocused, setSearchFocused] = useState(false);
-  const cartItems = 3;
+  const [currentUser, setCurrentUser] = useState(null);
+  const [showCartDropdown, setShowCartDropdown] = useState(false);
+  const cartRef = useRef(null);
+
+  useEffect(() => {
+    const user = AuthUtils.getCurrentUser();
+    setCurrentUser(user);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (cartRef.current && !cartRef.current.contains(event.target)) {
+        setShowCartDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const isLoggedIn = AuthUtils.isLoggedIn();
+  const displayName = AuthUtils.getUserDisplayName(currentUser);
 
   const navLinks = [
     { name: "Home", to: "/" },
@@ -51,21 +73,38 @@ const Navbar = () => {
             </select>
             <span className="hidden sm:inline">|</span>
             <div className="hidden sm:flex items-center space-x-3">
-              <Link
-                to="/signinup"
-                state={{ mode: 'signin' }}
-                className="hover:text-green-300 transition"
-              >
-                Sign In
-              </Link>
-              <span>|</span>
-              <Link
-                to="/signinup"
-                state={{ mode: 'signup' }}
-                className="hover:text-green-300 transition"
-              >
-                Register
-              </Link>
+              {isLoggedIn ? (
+                <>
+                  <Link to="/dashboard" className="hover:text-green-300 transition">
+                    Dashboard
+                  </Link>
+                  <span>|</span>
+                  <button 
+                    onClick={() => { AuthUtils.logout(); window.location.reload(); }}
+                    className="hover:text-green-300 transition"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    to="/signinup"
+                    state={{ mode: 'signin' }}
+                    className="hover:text-green-300 transition"
+                  >
+                    Sign In
+                  </Link>
+                  <span>|</span>
+                  <Link
+                    to="/signinup"
+                    state={{ mode: 'signup' }}
+                    className="hover:text-green-300 transition"
+                  >
+                    Register
+                  </Link>
+                </>
+              )}
             </div>
 
           </div>
@@ -112,23 +151,32 @@ const Navbar = () => {
                   <User className="w-5 h-5 text-gray-700 group-hover:text-green-700 transition" />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-xs text-gray-500">Hello, User</span>
+                  <span className="text-xs text-gray-500">Hello, {displayName}</span>
                   <span className="text-sm font-semibold text-gray-800 flex items-center">
-                    Account <ChevronDown className="w-3 h-3 ml-1" />
+                    {isLoggedIn ? 'Account' : 'Sign In'} <ChevronDown className="w-3 h-3 ml-1" />
                   </span>
                 </div>
               </div>
 
               {/* Cart */}
-              <div className="relative cursor-pointer group">
-                <div className="bg-gray-100 p-2.5 rounded-full group-hover:bg-green-50 transition">
-                  <ShoppingCart className="w-6 h-6 text-gray-700 group-hover:text-green-700 transition" />
-                  {totalItems > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-xs w-5 h-5 flex items-center justify-center font-bold shadow-md">
-                      {totalItems}
-                    </span>
-                  )}
+              <div ref={cartRef} className="relative">
+                <div 
+                  className="cursor-pointer group"
+                  onClick={() => setShowCartDropdown(!showCartDropdown)}
+                >
+                  <div className="bg-gray-100 p-2.5 rounded-full group-hover:bg-green-50 transition">
+                    <ShoppingCart className="w-6 h-6 text-gray-700 group-hover:text-green-700 transition" />
+                    {totalItems > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-xs w-5 h-5 flex items-center justify-center font-bold shadow-md">
+                        {totalItems}
+                      </span>
+                    )}
+                  </div>
                 </div>
+                <CartDropdown 
+                  isOpen={showCartDropdown} 
+                  onClose={() => setShowCartDropdown(false)} 
+                />
               </div>
 
               {/* Mobile Menu Button */}
@@ -203,11 +251,26 @@ const Navbar = () => {
               <User className="w-6 h-6 text-green-700" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-gray-800">Welcome!</p>
+              <p className="text-sm font-semibold text-gray-800">Hello, {displayName}!</p>
               <div className="flex space-x-3 mt-1">
-                <a href="/signin" className="text-xs text-green-700 font-medium hover:underline">Sign In</a>
-                <span className="text-xs text-gray-400">|</span>
-                <a href="/register" className="text-xs text-green-700 font-medium hover:underline">Register</a>
+                {isLoggedIn ? (
+                  <>
+                    <Link to="/dashboard" className="text-xs text-green-700 font-medium hover:underline">Dashboard</Link>
+                    <span className="text-xs text-gray-400">|</span>
+                    <button 
+                      onClick={() => { AuthUtils.logout(); window.location.reload(); }}
+                      className="text-xs text-green-700 font-medium hover:underline"
+                    >
+                      Logout
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link to="/signinup" state={{ mode: 'signin' }} className="text-xs text-green-700 font-medium hover:underline">Sign In</Link>
+                    <span className="text-xs text-gray-400">|</span>
+                    <Link to="/signinup" state={{ mode: 'signup' }} className="text-xs text-green-700 font-medium hover:underline">Register</Link>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -235,9 +298,12 @@ const Navbar = () => {
 
         {/* Cart in mobile */}
         <div className="absolute bottom-0 left-0 right-0 p-6 border-t bg-gray-50">
-          <button className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-medium flex items-center justify-center space-x-2 transition-colors">
+          <button 
+            onClick={() => setShowCartDropdown(!showCartDropdown)}
+            className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-medium flex items-center justify-center space-x-2 transition-colors"
+          >
             <ShoppingCart className="w-5 h-5" />
-            <span>View Cart ({cartItems})</span>
+            <span>View Cart ({totalItems})</span>
           </button>
         </div>
       </div>

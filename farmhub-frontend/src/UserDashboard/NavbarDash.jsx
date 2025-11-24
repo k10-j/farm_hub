@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
-import { Leaf, Menu, X, User, ChevronDown } from "lucide-react";
+import { Leaf, Menu, X, User, ChevronDown, ShoppingCart } from "lucide-react";
 import AuthUtils from "../utils/authUtils";
+import { useCart } from "../website/hooks/cartHook";
+import CartDropdown from "../website/Components/CartDropdown";
 
 const FarmerNavbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const { totalItems } = useCart();
 
   useEffect(() => {
     const user = AuthUtils.getCurrentUser();
@@ -57,21 +61,43 @@ const FarmerNavbar = () => {
               ))}
             </div>
 
-            {/* PROFILE */}
-            <NavLink
-              to="/dashboard/profile"
-              className={({ isActive }) =>
-                `hidden md:flex items-center space-x-2 cursor-pointer group ${isActive ? 'text-green-700' : ''
-                }`
-              }
-            >
-              <div className="bg-gray-100 p-2 rounded-full group-hover:bg-green-50 transition">
-                <User className="w-5 h-5 text-gray-700 group-hover:text-green-700" />
+            {/* CART & PROFILE */}
+            <div className="hidden md:flex items-center space-x-4">
+              {/* Cart */}
+              <div className="relative">
+                <button
+                  onMouseEnter={() => setIsCartOpen(true)}
+                  onClick={() => setIsCartOpen(!isCartOpen)}
+                  className="relative p-2 hover:bg-gray-100 rounded-full transition group"
+                >
+                  <ShoppingCart className="w-5 h-5 text-gray-700 group-hover:text-green-700" />
+                  {totalItems > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-green-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
+                      {totalItems}
+                    </span>
+                  )}
+                </button>
+                <div onMouseLeave={() => setIsCartOpen(false)}>
+                  <CartDropdown isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+                </div>
               </div>
-              <span className="text-sm font-semibold text-gray-800 flex items-center">
-                {AuthUtils.getUserDisplayName(currentUser)} <ChevronDown className="w-3 h-3 ml-1" />
-              </span>
-            </NavLink>
+
+              {/* Profile */}
+              <NavLink
+                to="/dashboard/profile"
+                className={({ isActive }) =>
+                  `flex items-center space-x-2 cursor-pointer group ${isActive ? 'text-green-700' : ''
+                  }`
+                }
+              >
+                <div className="bg-gray-100 p-2 rounded-full group-hover:bg-green-50 transition">
+                  <User className="w-5 h-5 text-gray-700 group-hover:text-green-700" />
+                </div>
+                <span className="text-sm font-semibold text-gray-800 flex items-center">
+                  {AuthUtils.getUserDisplayName(currentUser)} <ChevronDown className="w-3 h-3 ml-1" />
+                </span>
+              </NavLink>
+            </div>
 
             {/* MOBILE MENU BUTTON */}
             <button
@@ -109,14 +135,35 @@ const FarmerNavbar = () => {
                   to={link.to}
                   onClick={() => setIsOpen(false)}
                   className={({ isActive }) =>
-                    `block px-4 py-3 rounded-lg my-1 font-medium transition-colors ${isActive ? "bg-green-50 text-green-700" : "hover:bg-gray-50"
+                    `flex items-center justify-between px-4 py-3 rounded-lg my-1 font-medium transition-colors ${isActive ? "bg-green-50 text-green-700" : "hover:bg-gray-50"
                     }`
                   }
                 >
-                  {link.name}
+                  <span>{link.name}</span>
                 </NavLink>
               </li>
             ))}
+            
+            {/* Mobile Cart Link */}
+            <li>
+              <button
+                onClick={() => {
+                  setIsCartOpen(!isCartOpen);
+                  setIsOpen(false);
+                }}
+                className="w-full flex items-center justify-between px-4 py-3 rounded-lg my-1 font-medium transition-colors hover:bg-gray-50"
+              >
+                <div className="flex items-center gap-3">
+                  <ShoppingCart className="w-5 h-5" />
+                  <span>Cart</span>
+                </div>
+                {totalItems > 0 && (
+                  <span className="bg-green-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
+                    {totalItems}
+                  </span>
+                )}
+              </button>
+            </li>
           </ul>
 
           {/* PROFILE BUTTON */}
@@ -137,6 +184,16 @@ const FarmerNavbar = () => {
             className="fixed inset-0 bg-black/40 z-40 backdrop-blur-sm md:hidden"
             onClick={() => setIsOpen(false)}
           ></div>
+        )}
+        
+        {/* Mobile Cart Dropdown */}
+        {isCartOpen && (
+          <div className="md:hidden fixed inset-0 z-50 flex items-start justify-center pt-20">
+            <div className="bg-black/40 absolute inset-0" onClick={() => setIsCartOpen(false)}></div>
+            <div className="relative w-full max-w-md mx-4">
+              <CartDropdown isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+            </div>
+          </div>
         )}
       </div>
 
