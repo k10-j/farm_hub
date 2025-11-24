@@ -10,7 +10,10 @@ const UserCredentials = ({ user }) => {
         <div className="space-y-6">
             <div className="border-b pb-4">
                 <h2 className="text-2xl font-bold text-gray-800 mb-2">My Credentials</h2>
-                <p className="text-gray-600">Your account information and details</p>
+                <p className="
+                
+                
+                text-gray-600">Your account information and details</p>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
