@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import CartProvider from './website/context/CartProvider';
+import './utils/demoLogin'; // Import demo login for testing
 
 // Public pages
 import WebsiteLayout from "./website/Layout";
@@ -30,6 +31,7 @@ import AllOrders from "./UserDashboard/Orders/AllOrders";
 import ProfilePage from "./UserDashboard/Profile/ProfilePage";
 
 function App() {
+  // Demo login available in console: window.demoLogin()
   return (
     <BrowserRouter>
       <CartProvider>

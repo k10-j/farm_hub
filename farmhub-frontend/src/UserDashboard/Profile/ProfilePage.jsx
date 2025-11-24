@@ -1,25 +1,85 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { History, Settings, LogOut, User, ArrowLeft } from 'lucide-react';
 import ProfileHistory from './ProfileHistory';
 import ProfileSettings from './ProfileSettings';
+import AuthUtils from '../../utils/authUtils';
+
+const UserCredentials = ({ user }) => {
+    return (
+        <div className="space-y-6">
+            <div className="border-b pb-4">
+                <h2 className="text-2xl font-bold text-gray-800 mb-2">My Credentials</h2>
+                <p className="text-gray-600">Your account information and details</p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-gray-50 p-4 rounded-lg">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                    <p className="text-lg font-semibold text-gray-900">{user?.name || user?.firstName || 'Not provided'}</p>
+                </div>
+                
+                <div className="bg-gray-50 p-4 rounded-lg">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                    <p className="text-lg font-semibold text-gray-900">{user?.email || 'Not provided'}</p>
+                </div>
+                
+                <div className="bg-gray-50 p-4 rounded-lg">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                    <p className="text-lg font-semibold text-gray-900">{user?.phone || user?.phoneNumber || 'Not provided'}</p>
+                </div>
+                
+                <div className="bg-gray-50 p-4 rounded-lg">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                    <p className="text-lg font-semibold text-gray-900">{user?.role || 'FARMER'}</p>
+                </div>
+                
+                <div className="bg-gray-50 p-4 rounded-lg">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">User ID</label>
+                    <p className="text-lg font-semibold text-gray-900">{user?.id || user?.userId || 'Not available'}</p>
+                </div>
+                
+                <div className="bg-gray-50 p-4 rounded-lg">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Member Since</label>
+                    <p className="text-lg font-semibold text-gray-900">
+                        {user?.joinDate ? new Date(user.joinDate).toLocaleDateString() : 
+                         user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Recently'}
+                    </p>
+                </div>
+            </div>
+            
+            <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
+                <h3 className="font-semibold text-blue-800 mb-2">Account Status</h3>
+                <p className="text-blue-700">✅ Active Account - All features available</p>
+            </div>
+        </div>
+    );
+};
 
 const ProfilePage = () => {
     const navigate = useNavigate();
-    const [activeSection, setActiveSection] = useState('history');
+    const [activeSection, setActiveSection] = useState('credentials');
+    const [currentUser, setCurrentUser] = useState(null);
+
+    useEffect(() => {
+        loadUserData();
+    }, []);
+
+    const loadUserData = () => {
+        const user = AuthUtils.getCurrentUser();
+        setCurrentUser(user);
+    };
 
     const handleLogout = () => {
         if (window.confirm('Are you sure you want to logout?')) {
-            // Clear user data
-            localStorage.removeItem('user');
-            localStorage.removeItem('authToken');
-            // Navigate to home or login page
+            AuthUtils.logout();
             navigate('/');
             window.location.reload();
         }
     };
 
     const menuItems = [
+        { id: 'credentials', label: 'My Credentials', icon: User },
         { id: 'history', label: 'History', icon: History },
         { id: 'settings', label: 'Settings', icon: Settings }
     ];
@@ -49,8 +109,8 @@ const ProfilePage = () => {
                                     <User className="w-8 h-8" />
                                 </div>
                                 <div>
-                                    <h2 className="font-semibold text-lg">Current User</h2>
-                                    <p className="text-sm text-green-100">Farmer</p>
+                                    <h2 className="font-semibold text-lg">{AuthUtils.getUserDisplayName(currentUser)}</h2>
+                                    <p className="text-sm text-green-100">{currentUser?.role || 'Farmer'}</p>
                                 </div>
                             </div>
                         </div>
@@ -91,6 +151,7 @@ const ProfilePage = () => {
                 {/* Main Content */}
                 <div className="flex-1">
                     <div className="bg-white rounded-xl shadow-md p-6">
+                        {activeSection === 'credentials' && <UserCredentials user={currentUser} />}
                         {activeSection === 'history' && <ProfileHistory />}
                         {activeSection === 'settings' && <ProfileSettings />}
                     </div>
