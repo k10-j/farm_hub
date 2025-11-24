@@ -29,6 +29,7 @@ import EquipmentPaymentPage from "./UserDashboard/Equipement/pages/EquipmentPaym
 import EquipmentConfirmationPage from "./UserDashboard/Equipement/pages/EquipmentConfirmationPage";
 import AllOrders from "./UserDashboard/Orders/AllOrders";
 import ProfilePage from "./UserDashboard/Profile/ProfilePage";
+import CartPage from "./UserDashboard/Cart/CartPage";
 
 function App() {
   // Demo login available in console: window.demoLogin()
@@ -66,6 +67,7 @@ function App() {
             <Route path="equipment/confirmation" element={<EquipmentConfirmationPage />} />
             <Route path="orders" element={<AllOrders />} />
             <Route path="profile" element={<ProfilePage />} />
+            <Route path="cart" element={<CartPage />} />
             {/* <Route path="/product/:id" element={<ProductPage />} /> */}
 
             {/* you can add more dashboard pages here */}

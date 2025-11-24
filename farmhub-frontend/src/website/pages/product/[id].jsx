@@ -1,22 +1,36 @@
 import React, { useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import products from "../../Components/marketplace/ProductData";
 import { Star, ShoppingCart } from "lucide-react";
+import { useCart } from "../../hooks/cartHook";
+import CheckoutPage from "../../../UserDashboard/MarketDash/CheckoutPage";
 
 const ProductPage = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const product = products.find((p) => p.id === parseInt(id));
+  const { addToCart } = useCart();
 
   const [activeTab, setActiveTab] = useState("description");
   const [mainImage, setMainImage] = useState(product?.image);
   const [quantity, setQuantity] = useState(1);
-  const [cart, setCart] = useState([]);
+  const [showCheckout, setShowCheckout] = useState(false);
 
   if (!product) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-100">
         <p className="text-xl text-gray-700">Product not found.</p>
       </div>
+    );
+  }
+
+  if (showCheckout) {
+    return (
+      <CheckoutPage 
+        product={{ ...product, quantity }}
+        onBack={handleBackToProduct}
+        onProceedToPayment={handleProceedToPayment}
+      />
     );
   }
 
@@ -37,26 +51,25 @@ const ProductPage = () => {
     );
   };
 
-  const addToCart = () => {
+  const handleAddToCart = () => {
     if (!product.inStock) return;
-    const itemInCart = cart.find((c) => c.id === product.id);
-    if (itemInCart) {
-      setCart(
-        cart.map((c) =>
-          c.id === product.id ? { ...c, quantity: c.quantity + quantity } : c
-        )
-      );
-    } else {
-      setCart([...cart, { ...product, quantity }]);
-    }
-    alert(`${quantity} ${product.name} added to cart!`);
+    const productWithQuantity = { ...product, quantity };
+    addToCart(productWithQuantity);
   };
 
   const buyNow = () => {
     if (!product.inStock) return;
-    addToCart();
-    alert("Proceeding to checkout...");
-    // Here you can redirect to checkout page if implemented
+    setShowCheckout(true);
+  };
+
+  const handleProceedToPayment = (shippingInfo) => {
+    // Handle payment processing here
+    console.log('Proceeding to payment with:', shippingInfo);
+    alert('Payment processing would start here');
+  };
+
+  const handleBackToProduct = () => {
+    setShowCheckout(false);
   };
 
   const relatedProducts = products
@@ -164,7 +177,7 @@ const ProductPage = () => {
                   product.inStock ? "bg-green-600 hover:bg-green-700" : "bg-gray-300 cursor-not-allowed"
                 } transition`}
                 disabled={!product.inStock}
-                onClick={addToCart}
+                onClick={handleAddToCart}
               >
                 <ShoppingCart className="w-5 h-5 inline mr-2" /> Add to Cart
               </button>

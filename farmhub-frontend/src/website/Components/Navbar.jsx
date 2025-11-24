@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { NavLink } from "react-router-dom";
 import { Link } from 'react-router-dom';
 import { useCart } from "../hooks/cartHook";
 import AuthUtils from "../../utils/authUtils";
+import CartDropdown from "./CartDropdown";
 import { Leaf, ShoppingCart, Menu, X, Search, User, MapPin, ChevronDown } from "lucide-react";
 
 const Navbar = () => {
@@ -11,11 +12,22 @@ const Navbar = () => {
   const [lang, setLang] = useState("EN");
   const [searchFocused, setSearchFocused] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
-  const cartItems = 3;
+  const [showCartDropdown, setShowCartDropdown] = useState(false);
+  const cartRef = useRef(null);
 
   useEffect(() => {
     const user = AuthUtils.getCurrentUser();
     setCurrentUser(user);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (cartRef.current && !cartRef.current.contains(event.target)) {
+        setShowCartDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const isLoggedIn = AuthUtils.isLoggedIn();
@@ -147,15 +159,24 @@ const Navbar = () => {
               </div>
 
               {/* Cart */}
-              <div className="relative cursor-pointer group">
-                <div className="bg-gray-100 p-2.5 rounded-full group-hover:bg-green-50 transition">
-                  <ShoppingCart className="w-6 h-6 text-gray-700 group-hover:text-green-700 transition" />
-                  {totalItems > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-xs w-5 h-5 flex items-center justify-center font-bold shadow-md">
-                      {totalItems}
-                    </span>
-                  )}
+              <div ref={cartRef} className="relative">
+                <div 
+                  className="cursor-pointer group"
+                  onClick={() => setShowCartDropdown(!showCartDropdown)}
+                >
+                  <div className="bg-gray-100 p-2.5 rounded-full group-hover:bg-green-50 transition">
+                    <ShoppingCart className="w-6 h-6 text-gray-700 group-hover:text-green-700 transition" />
+                    {totalItems > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-xs w-5 h-5 flex items-center justify-center font-bold shadow-md">
+                        {totalItems}
+                      </span>
+                    )}
+                  </div>
                 </div>
+                <CartDropdown 
+                  isOpen={showCartDropdown} 
+                  onClose={() => setShowCartDropdown(false)} 
+                />
               </div>
 
               {/* Mobile Menu Button */}
@@ -277,9 +298,12 @@ const Navbar = () => {
 
         {/* Cart in mobile */}
         <div className="absolute bottom-0 left-0 right-0 p-6 border-t bg-gray-50">
-          <button className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-medium flex items-center justify-center space-x-2 transition-colors">
+          <button 
+            onClick={() => setShowCartDropdown(!showCartDropdown)}
+            className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-medium flex items-center justify-center space-x-2 transition-colors"
+          >
             <ShoppingCart className="w-5 h-5" />
-            <span>View Cart ({cartItems})</span>
+            <span>View Cart ({totalItems})</span>
           </button>
         </div>
       </div>

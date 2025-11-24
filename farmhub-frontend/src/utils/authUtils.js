@@ -47,6 +47,7 @@ export const AuthUtils = {
     localStorage.removeItem('user');
     localStorage.removeItem('token');
     localStorage.removeItem('authToken');
+    localStorage.removeItem('userCart'); // Clear cart on logout
   },
 
   // Get user display name
