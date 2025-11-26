@@ -1,61 +1,44 @@
-FarmHub
+# FarmHub
 
 FarmHub is a comprehensive digital platform designed to empower farmers by bridging the gap between technology and agriculture. It combines an equipment rental system, a farmer-to-farmer marketplace, and AI-powered pest diagnosis to enhance productivity and market access.
 
-Tech Stack
+# Tech Stack
 
-Backend
+## Backend
+Language: Java 21  
+Framework: Spring Boot 3.3.5  
+Database: MySQL  
+Security: Spring Security with JWT (Stateless)  
+Build Tool: Maven  
+External APIs: Plant.id
 
-Language: Java 21
-
-Framework: Spring Boot 3.3.5
-
-Database: MySQL
-
-Security: Spring Security with JWT (Stateless)
-
-Build Tool: Maven
-
-External APIs: Plant.id (for disease detection)
-
-Frontend
-
-Framework: React 19
-
-Build Tool: Vite
-
-Styling: Tailwind CSS
-
-Routing: React Router DOM
-
-Animations: Framer Motion, AOS
-
+## Frontend
+Framework: React 19  
+Build Tool: Vite  
+Styling: Tailwind CSS  
+Routing: React Router DOM  
+Animations: Framer Motion, AOS  
 Icons: Lucide React
 
-🛠️ Getting Started
+# Getting Started
 
-Follow these instructions to set up the project locally.
+# 1. Backend Setup (/farmhub)
 
-1. Backend Setup (/farmhub)
+## Prerequisites
+- Java 21 SDK
+- MySQL installed and running
+- Maven (optional, mvnw included)
 
-Prerequisites
+## Configuration
 
-Java 21 SDK installed.
-
-MySQL Database installed and running.
-
-Maven (optional, as mvnw wrapper is included).
-
-Configuration
-
-Navigate to the backend directory:
+Navigate to the backend folder:
 
 cd farmhub
 
+bash
+Copy code
 
-Create a .env file in the root of the farmhub folder (or update application.properties directly if you prefer not to use dotenv).
-
-Add the following environment variables:
+Create a `.env` file in the root:
 
 DB_URL=jdbc:mysql://localhost:3306/farmhub
 DB_USERNAME=your_mysql_username
@@ -63,325 +46,285 @@ DB_PASSWORD=your_mysql_password
 JWT_SECRET_KEY=your_secure_random_secret_key_at_least_32_chars_long
 JWT_EXPIRATION_MS=86400000
 PLANTID_KEY=your_plant_id_api_key
-PLANT_ID_URL=[https://api.plant.id/v2/health_assessment](https://api.plant.id/v2/health_assessment)
+PLANT_ID_URL=https://api.plant.id/v2/health_assessment
 
+arduino
+Copy code
 
-Running the Server
+Ensure the database exists:
 
-Build the project:
+CREATE DATABASE farmhub;
+
+makefile
+Copy code
+
+## Running the Server
+
+Build:
 
 ./mvnw clean install
 
+makefile
+Copy code
 
-Run the application:
+Run:
 
 ./mvnw spring-boot:run
 
+markdown
+Copy code
 
-The backend will start on http://localhost:8080.
+Backend runs at:  
+http://localhost:8080
 
-2. Frontend Setup (/farmhub-frontend)
+# 2. Frontend Setup (/farmhub-frontend)
 
-Prerequisites
+## Prerequisites
+- Node.js v18+
+- npm
 
-Node.js (v18 or higher recommended)
-
-npm
-
-Installation & Running
-
-Navigate to the frontend directory:
+Navigate to the frontend folder:
 
 cd farmhub-frontend
 
+yaml
+Copy code
 
 Install dependencies:
 
 npm install
 
+perl
+Copy code
 
-Configuration (Important):
+## Frontend Configuration
 
-The application currently points to a production URL (https://farm-hub.onrender.com) in files like SignInUp.jsx and pestDash.jsx.
+The frontend currently points to the production API URL `https://farm-hub.onrender.com` in files such as `SignInUp.jsx` and `pestDash.jsx`.
 
-For local development, search for this URL in your code and replace it with http://localhost:8080.
+For local development, replace occurrences of that URL with:
 
-Recommendation: Create a .env file in farmhub-frontend/ with VITE_API_URL=http://localhost:8080 and use import.meta.env.VITE_API_URL in your fetch calls.
+http://localhost:8080
 
-Start the development server:
+go
+Copy code
+
+Recommended: create a `.env` file in the `farmhub-frontend` folder:
+
+VITE_API_URL=http://localhost:8080
+
+perl
+Copy code
+
+Then use:
+
+import.meta.env.VITE_API_URL
+
+powershell
+Copy code
+
+Start development server:
 
 npm run dev
 
+bash
+Copy code
 
-Open your browser at http://localhost:5173.
+Frontend runs at:  
+http://localhost:5173
 
-📡 API Documentation
+# API Documentation
 
-All endpoints are prefixed with /api.
-Auth Required: Yes (Bearer Token via Cookie or Header), except for Auth endpoints.
+All endpoints are prefixed with `/api`.  
+Authentication is required except for `/api/auth/**`.
 
-1. Authentication
+# 1. Authentication
 
-Register User
-
-Endpoint: POST /api/auth/register
-
+## Register User  
+POST /api/auth/register  
 Payload:
 
 {
-  "full_name": "John Doe",
-  "email": "john@example.com",
-  "password": "password123",
-  "phone_number": "+250788123456",
-  "location": "Kigali"
+"full_name": "John Doe",
+"email": "john@example.com",
+"password": "password123",
+"phone_number": "+250788123456",
+"location": "Kigali"
 }
 
+bash
+Copy code
 
-Response (201 Created):
-
-{
-  "id": "uuid-string",
-  "name": "John Doe",
-  "email": "john@example.com",
-  "phone": "+250788123456"
-}
-
-
-Login
-
-Endpoint: POST /api/auth/login
-
+## Login  
+POST /api/auth/login  
 Payload:
 
 {
-  "email": "john@example.com",
-  "password": "password123"
+"email": "john@example.com",
+"password": "password123"
 }
 
+bash
+Copy code
 
-Response (200 OK):
+Response sets an HttpOnly JWT cookie.
 
-Sets jwt HTTP-only cookie.
+# 2. Marketplace (Produce)
 
-{
-  "token": "jwt-token-string",
-  "user": {
-    "id": "uuid-string",
-    "name": "John Doe",
-    "email": "john@example.com",
-    "phone": "+250788123456"
-  }
-}
-
-
-2. Marketplace (Produce)
-
-Create Produce
-
-Endpoint: POST /api/produce
-
+## Create Produce  
+POST /api/produce  
 Payload:
 
 {
-  "name": "Fresh Tomatoes",
-  "cropType": "Vegetable",
-  "description": "Organic tomatoes harvested today.",
-  "unit": "kg",
-  "quantity": 50.0,
-  "pricePerUnit": 500.00,
-  "imageUrl": "[https://example.com/image.jpg](https://example.com/image.jpg)",
-  "harvestDate": "2023-10-27"
+"name": "Fresh Tomatoes",
+"cropType": "Vegetable",
+"description": "Organic tomatoes harvested today.",
+"unit": "kg",
+"quantity": 50.0,
+"pricePerUnit": 500.00,
+"imageUrl": "https://example.com/image.jpg",
+"harvestDate": "2023-10-27"
 }
 
+bash
+Copy code
 
-Response (201 Created): Returns the created Produce object with ID.
+## Get All Produce  
+GET /api/produce
 
-Get All Produce
+## Get Produce by ID  
+GET /api/produce/{id}
 
-Endpoint: GET /api/produce
+## Update Produce  
+PATCH /api/produce/{id}
 
-Response: Array of produce objects.
+## Delete Produce  
+DELETE /api/produce/{id}
 
-Get Produce by ID
+# 3. Equipment Rental
 
-Endpoint: GET /api/produce/{id}
-
-Update Produce
-
-Endpoint: PATCH /api/produce/{id}
-
+## Create Equipment  
+POST /api/equipment  
 Payload:
 
 {
-  "name": "Updated Name",
-  "quantity": 45.0
+"name": "John Deere Tractor",
+"type": "Tractor",
+"hourlyRate": 15000.00,
+"dailyRate": 100000.00,
+"location": "Musanze",
+"availability": "AVAILABLE"
 }
 
+bash
+Copy code
 
-Delete Produce
+## Get All Equipment  
+GET /api/equipment
 
-Endpoint: DELETE /api/produce/{id}
+## Get My Equipment  
+GET /api/equipment/my-equipment
 
-3. Equipment Rental
+## Update Equipment  
+PATCH /api/equipment/{id}
 
-List Equipment
+# 4. Bookings
 
-Endpoint: POST /api/equipment
-
+## Create Booking  
+POST /api/bookings  
 Payload:
 
 {
-  "name": "John Deere Tractor",
-  "type": "Tractor",
-  "hourlyRate": 15000.00,
-  "dailyRate": 100000.00,
-  "location": "Musanze",
-  "availability": "AVAILABLE"
+"equipmentId": "uuid-of-equipment",
+"startDate": "2023-11-01T08:00:00",
+"endDate": "2023-11-01T12:00:00"
 }
 
+bash
+Copy code
 
-Get All Equipment
+## Get My Bookings  
+GET /api/bookings/my-bookings
 
-Endpoint: GET /api/equipment
+## Get Bookings for My Equipment  
+GET /api/bookings/my-equipment-bookings
 
-Get My Equipment
-
-Endpoint: GET /api/equipment/my-equipment
-
-Update Equipment
-
-Endpoint: PATCH /api/equipment/{id}
-
-Payload: (Partial update allowed)
-
-{
-  "hourlyRate": 16000.00,
-  "availability": "UNAVAILABLE"
-}
-
-
-4. Bookings (Equipment)
-
-Create Booking
-
-Endpoint: POST /api/bookings
-
+## Update Booking Status  
+PATCH /api/bookings/{id}/status  
 Payload:
 
 {
-  "equipmentId": "uuid-of-equipment",
-  "startDate": "2023-11-01T08:00:00",
-  "endDate": "2023-11-01T12:00:00"
+"status": "CONFIRMED"
 }
 
+bash
+Copy code
 
-Response: Booking object with calculated totalPrice and status REQUESTED.
+# 5. Orders
 
-Get My Bookings (As Renter)
-
-Endpoint: GET /api/bookings/my-bookings
-
-Get Bookings for My Equipment (As Owner)
-
-Endpoint: GET /api/bookings/my-equipment-bookings
-
-Update Booking Status
-
-Endpoint: PATCH /api/bookings/{id}/status
-
+## Place Order  
+POST /api/order  
 Payload:
 
 {
-  "status": "CONFIRMED" 
+"farmer_id": "uuid-of-farmer",
+"items": [
+{
+"produce_id": "uuid-of-produce",
+"quantity": 5
+}
+]
 }
 
+bash
+Copy code
 
-Options: APPROVED, REJECTED, CONFIRMED, COMPLETED, CANCELLED.
+## Get My Orders  
+GET /api/order/my-orders
 
-5. Orders (Marketplace)
-
-Place Order
-
-Endpoint: POST /api/order
-
+## Update Order Status  
+PATCH /api/order/{id}/status  
 Payload:
 
 {
-  "farmer_id": "uuid-of-farmer",
-  "items": [
-    {
-      "produce_id": "uuid-of-produce",
-      "quantity": 5
-    }
-  ]
+"status": "DELIVERED"
 }
 
+bash
+Copy code
 
-Get My Orders
+# 6. Pest Diagnosis
 
-Endpoint: GET /api/order/my-orders
-
-Update Order Status
-
-Endpoint: PATCH /api/order/{id}/status
-
-Payload:
-
-{
-  "status": "DELIVERED"
-}
-
-
-6. Pest Diagnosis
-
-Detect Disease
-
-Endpoint: POST /api/detect-disease
-
+## Detect Disease  
+POST /api/detect-disease  
 Content-Type: multipart/form-data
 
 Payload:
+- image: File  
+- similarImages: boolean  
 
-image: (File) The image of the crop.
+Response includes plant detection, disease probabilities, and similar images.
 
-similarImages: true (boolean).
+# 7. Users
 
-Response:
+## Get User Profile  
+GET /api/users/{id}
 
-{
-  "plantDetected": true,
-  "healthy": false,
-  "healthProbability": 0.15,
-  "possibleDiseases": [
-    {
-      "name": "Leaf Spot",
-      "probability": 0.85,
-      "similarImages": ["url1", "url2"]
-    }
-  ]
-}
-
-
-7. Users
-
-Get User Profile
-
-Endpoint: GET /api/users/{id}
-
-Update Profile
-
-Endpoint: PATCH /api/users/{id}
-
+## Update Profile  
+PATCH /api/users/{id}  
 Payload:
 
 {
-  "name": "New Name",
-  "phone": "+250..."
+"name": "New Name",
+"phone": "+250..."
 }
 
+yaml
+Copy code
 
-🧪 Running Tests
+# Running Tests
 
-To run the backend integration tests (using H2 in-memory database):
+To run backend integration tests:
 
 ./mvnw test
+
+Copy code
